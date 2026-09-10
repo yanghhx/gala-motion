@@ -1,0 +1,66 @@
+% Optional TikZ twin of figures/fig_architecture.pdf (MLD / MoMask three-column layout).
+% main.tex includes the PDF so Overleaf builds without TikZ sizing issues.
+\begin{tikzpicture}[
+  font=\sffamily\footnotesize,
+  >=Latex,
+  panel/.style={draw=#1!45!black, fill=#1!7, rounded corners=3pt},
+  box/.style={draw=#1!60!black, fill=white, rounded corners=2.5pt,
+              align=center, inner sep=4.5pt, thick},
+  tok/.style={draw=#1!70!black, fill=#1!22, rounded corners=1pt,
+              minimum width=0.36cm, minimum height=0.32cm},
+  arr/.style={-{Latex[length=2mm]}, line width=0.75pt, draw=black!55},
+  lab/.style={font=\sffamily\scriptsize, text=black!55},
+]
+% panels
+\node[panel=blue, minimum width=4.55cm, minimum height=6.35cm, anchor=south west] (A) at (0,0) {};
+\node[panel=teal, minimum width=5.15cm, minimum height=6.35cm, anchor=south west] (B) at (5.15,0) {};
+\node[panel=violet, minimum width=4.35cm, minimum height=6.35cm, anchor=south west] (C) at (10.90,0) {};
+
+\node[font=\small\sffamily\bfseries, anchor=west] at (0.18,6.05) {(a)};
+\node[font=\small\sffamily, anchor=west] at (0.62,6.05) {Graph tokenizer};
+\node[font=\small\sffamily\bfseries, anchor=west] at (5.33,6.05) {(b)};
+\node[font=\small\sffamily, anchor=west] at (5.77,6.05) {Text-conditioned flow};
+\node[font=\small\sffamily\bfseries, anchor=west] at (11.08,6.05) {(c)};
+\node[font=\small\sffamily, anchor=west] at (11.52,6.05) {Sample and decode};
+
+% (a)
+\node[box=blue, minimum width=4.05cm] (enc) at (2.27,3.35)
+  {Graph encoder\\[-1pt]{\scriptsize CTR topology $+$ joint velocity}};
+\node[box=blue, minimum width=4.05cm] (vae) at (2.27,2.15)
+  {Topology VAE\\[-1pt]{\scriptsize stride 4, $z\in\mathbb{R}^{L\times 256}$}};
+\draw[arr] (2.27,4.55) -- (enc.north);
+\draw[arr] (enc.south) -- (vae.north);
+\foreach \i in {0,1,2,3,4} {\node[tok=blue] at (1.15+0.48*\i, 0.85) {};}
+\node[lab] at (2.27,1.28) {latent tokens (frozen, 5\,Hz)};
+\draw[arr] (vae.south) -- (2.27,1.42);
+
+% (b)
+\node[box=orange, minimum width=4.55cm] (clip) at (7.72,5.35)
+  {Frozen CLIP\\[-1pt]{\scriptsize ViT-B/32 \quad $c_{1:N}\in\mathbb{R}^{N\times 512}$}};
+\node[box=teal, minimum width=4.55cm] (aln) at (7.72,4.25)
+  {Language--motion alignment\\[-1pt]{\scriptsize InfoNCE on pooled $c$ and $z$}};
+\node[box=teal, minimum width=4.15cm, minimum height=3.15cm] (dit) at (7.55,1.70)
+  {\textbf{Rectified-flow DiT}\\[1pt]
+   {\scriptsize $z_t=(1-t)\varepsilon+t\,z$ \quad $v=z-\varepsilon$}\\[3pt]
+   {\scriptsize AdaLN \ / \ self-attn \ / \ cross-attn \ / \ FFN}};
+\draw[arr] (clip.south) -- (aln.north);
+\draw[arr] (aln.south) -- (dit.north);
+\node[lab, align=left] at (9.95,1.70) {8\\[-1pt]blocks};
+
+% (c)
+\node[lab, anchor=west] at (11.10,5.55) {noise $\varepsilon$};
+\foreach \i in {0,1,2,3} {\node[tok=orange] at (11.55+0.50*\i, 5.15) {};}
+\node[box=purple, minimum width=3.85cm] (ode) at (13.07,3.85)
+  {Euler ODE\\[-1pt]{\scriptsize $N{=}20$ or $50$ \quad $v=v_u+\omega(v_c-v_u)$}};
+\node[lab] at (13.07,2.85) {clean $z$};
+\foreach \i in {0,1,2,3} {\node[tok=blue] at (11.55+0.50*\i, 2.45) {};}
+\node[box=blue, minimum width=3.85cm] (dec) at (13.07,1.15)
+  {VAE decoder\\[-1pt]{\scriptsize $\hat x_{1:T}\in\mathbb{R}^{T\times 263}$}};
+\draw[arr] (13.07,4.95) -- (ode.north);
+\draw[arr] (ode.south) -- (13.07,3.00);
+\draw[arr] (13.07,2.25) -- (dec.north);
+
+% gutter arrows: short, horizontal, between columns
+\draw[arr] (4.70,0.85) -- (4.98,0.85);
+\draw[arr] (10.48,3.85) -- (10.76,3.85);
+\end{tikzpicture}

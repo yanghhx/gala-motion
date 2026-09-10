@@ -1,0 +1,36 @@
+# weights, logs, caches
+checkpoints/
+runs/
+.venv/
+.venv_paper/
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.mypy_cache/
+
+# datasets and third-party dumps (too large / separately licensed)
+data/
+GENMO/
+GENMO-main.zip
+research_sources/
+repo-fetch.*/
+
+# local artifacts
+*.pt
+*.pth
+*.ckpt
+*.onnx
+events.out.tfevents.*
+*.log
+
+# paper export duplicates
+paper/GALA_WM_PREVIEW*.pdf
+paper/gala_wm_overleaf_v*.zip
+
+# editor
+.idea/
+.vscode/
+*.swp
+.DS_Store

@@ -1,0 +1,32 @@
+% Optional TikZ twin of figures/fig1_architecture.pdf (DINO-WM Fig.2 layout).
+% main.tex uses the PDF for error-free Overleaf builds.
+\begin{tikzpicture}[
+  font=\sffamily\footnotesize,
+  >=Latex,
+  panel/.style={draw=#1!55!black, fill=#1!8, rounded corners=3pt, thick},
+  box/.style={draw=#1!60!black, fill=#1!16, rounded corners=2pt, thick, align=center, inner sep=4pt},
+  soft/.style={draw=black!30, fill=white, rounded corners=2pt, align=center, inner sep=3pt},
+  tok/.style={draw=#1!70!black, fill=#1!25, rounded corners=1pt, minimum width=0.34cm, minimum height=0.30cm},
+  arr/.style={-{Latex[length=2mm]}, line width=0.7pt, draw=black!55},
+  lab/.style={font=\sffamily\scriptsize, text=black!55},
+  ttl/.style={font=\sffamily\small\bfseries},
+]
+\node[panel=blue, minimum width=4.4cm, minimum height=4.6cm, anchor=south west] at (0,0) {};
+\node[ttl] at (2.2,4.25) {(a) Observation (frozen)};
+\node[box=blue, minimum width=3.8cm] at (2.2,2.2) {Frozen GALA VAE\\[-1pt]{\scriptsize $263$-D$\to z\in\mathbb{R}^{256}$}};
+\node[box=orange, minimum width=3.8cm, fill=orange!12] at (2.2,0.7) {$a_t=\mathrm{mean}(\texttt{root4})$};
+
+\node[panel=teal, minimum width=4.6cm, minimum height=4.6cm, anchor=south west] at (4.7,0) {};
+\node[ttl] at (7.0,4.25) {(b) Transition $p_\theta$};
+\node[soft, minimum width=4.0cm] at (7.0,3.3) {$\hat z_{t+1}=z_t+\sigma(g(a_t))\Delta$};
+\node[box=teal, minimum width=4.0cm] at (7.0,1.6) {3-layer Transformer\\[-1pt]{\scriptsize FiLM + action gate}};
+
+\node[panel=violet, minimum width=4.2cm, minimum height=4.6cm, anchor=south west] at (9.6,0) {};
+\node[ttl] at (11.7,4.25) {(c) Latent CEM};
+\node[box=violet, minimum width=3.6cm] at (11.7,3.3) {goal $z^\star$};
+\node[box=violet, minimum width=3.6cm] at (11.7,2.0) {CEM in $z$};
+\node[box=blue, minimum width=3.6cm] at (11.7,0.7) {decoder $\to\hat x$};
+
+\draw[arr] (4.4,1.6) -- (4.7,1.6);
+\draw[arr] (9.3,1.6) -- (9.6,2.0);
+\end{tikzpicture}

@@ -1,0 +1,35 @@
+experiment: gala_motion_kitml
+seed: 3407
+dataset:
+  root: /home/qinyang/桌面/project/data/KIT-ML-official
+  split: train
+  motion_dim: 251
+  num_joints: 21
+  max_frames: 196
+model:
+  latent_dim: 256
+  model_dim: 512
+  text_dim: 512
+  num_heads: 8
+  graph_layers: 2
+  dit_layers: 8
+  text_layers: 0
+  text_encoder_type: clip
+  train_stage: vae
+  stride: 4
+  cond_drop_prob: 0.1
+  lambda_alignment: 0.25
+training:
+  batch_size_per_gpu: 4
+  grad_accum: 4
+  epochs: 40
+  max_steps: 20000
+  eval_every_steps: 0
+  early_stop_fid_patience: 0
+  learning_rate: 0.0002
+  weight_decay: 0.01
+  num_workers: 2
+  precision: bf16
+  gradient_clip: 1.0
+  checkpoint_dir: /home/qinyang/桌面/project/checkpoints/gala_kitml_vae
+  log_dir: /home/qinyang/桌面/project/runs/gala_kitml_vae

@@ -1,0 +1,48 @@
+experiment: gala_wm_humanml3d_idm
+seed: 3407
+dataset:
+  root: /home/qinyang/桌面/project/data/HumanML3D
+  split: train
+  motion_dim: 263
+  num_joints: 22
+  max_frames: 196
+model:
+  latent_dim: 256
+  model_dim: 512
+  text_dim: 512
+  num_heads: 8
+  graph_layers: 2
+  dit_layers: 8
+  text_layers: 0
+  text_encoder_type: clip
+  train_stage: vae
+  stride: 4
+  cond_drop_prob: 0.1
+world:
+  history_latents: 4
+  action_type: idm
+  action_dim: 4
+  idm_dim: 16
+  cond_drop_prob: 0.1
+  lambda_mse: 1.0
+  lambda_flow: 0.25
+  lambda_idm: 0.1
+  lambda_cycle: 0.25
+  lambda_bone: 0.05
+  lambda_velocity: 0.05
+  use_flow: true
+training:
+  batch_size_per_gpu: 8
+  grad_accum: 2
+  epochs: 20
+  max_steps: 20000
+  eval_every_steps: 2000
+  eval_max_samples: 128
+  learning_rate: 0.0002
+  weight_decay: 0.01
+  num_workers: 2
+  precision: bf16
+  gradient_clip: 1.0
+  init_from: /home/qinyang/桌面/project/checkpoints/gala_humanml3d_vae/best.pt
+  checkpoint_dir: /home/qinyang/桌面/project/checkpoints/gala_humanml3d_wm_idm
+  log_dir: /home/qinyang/桌面/project/runs/gala_humanml3d_wm_idm
