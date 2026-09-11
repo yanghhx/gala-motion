@@ -69,7 +69,10 @@ class RectifiedFlowDiT(nn.Module):
             text_tokens[drop] = 0
         return text_condition, text_tokens, text_mask
 
-    def loss(self, clean, text_condition, padding_mask=None, text_tokens=None, text_mask=None, cond_drop_prob=0.0):
+    def loss(
+        self, clean, text_condition, padding_mask=None, text_tokens=None, text_mask=None,
+        cond_drop_prob=0.0, return_endpoint=False,
+    ):
         b = clean.shape[0]
         time = torch.rand(b, device=clean.device, dtype=clean.dtype)
         noise = torch.randn_like(clean)
@@ -80,7 +83,13 @@ class RectifiedFlowDiT(nn.Module):
         )
         prediction = self(z_t, time, text_condition, padding_mask, text_tokens, text_mask)
         valid = (~padding_mask).unsqueeze(-1) if padding_mask is not None else torch.ones_like(prediction, dtype=torch.bool)
-        return ((prediction - target).square() * valid).sum() / valid.sum().clamp_min(1)
+        loss = ((prediction - target).square() * valid).sum() / valid.sum().clamp_min(1)
+        if not return_endpoint:
+            return loss
+        endpoint = z_t + (1 - time[:, None, None]) * prediction
+        if padding_mask is not None:
+            endpoint = endpoint.masked_fill(padding_mask.unsqueeze(-1), 0)
+        return loss, endpoint
 
     def sample(self, shape, text_condition, padding_mask, steps, guidance_scale=1.0, text_tokens=None, text_mask=None):
         z = torch.randn(shape, device=text_condition.device, dtype=text_condition.dtype)

@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 ROOT = Path("/home/qinyang/桌面/project")
-OUT = Path("/home/qinyang/桌面/project/paper/gala_t2m_overleaf/figures")
+OUT = Path("/home/qinyang/桌面/project/paper/gala_t2m_overleaf/gala_t2m_overleaf/figures")
 OUT.mkdir(parents=True, exist_ok=True)
 
 INK = "#1F2937"
@@ -106,11 +106,10 @@ def fig_sweep():
 
 
 def fig_compare():
-    names = ["T2M", "MDM", "M2DM", "GENMO", "GALA\n20/2.5", "GALA\n50/2.0", "EMDM"]
-    r3 = [0.740, 0.611, 0.763, 0.632, 0.768, 0.749, 0.786]
-    fid = [1.067, 0.544, 0.352, 0.216, 0.330, 0.312, 0.112]
-    colors = [GRAY, GRAY, GRAY, ORANGE, TEAL, TEAL, GRAY]
-    hatches = ["", "", "", "//", "", "", ""]
+    names = ["MDM", "MLD", "M2DM", "GALA\n20", "GALA\n50", "T2M-GPT", "EMDM", "MoMask"]
+    r3 = [0.611, 0.772, 0.763, 0.768, 0.749, 0.775, 0.786, 0.807]
+    fid = [0.544, 0.473, 0.352, 0.330, 0.312, 0.141, 0.112, 0.045]
+    colors = [GRAY, GRAY, GRAY, TEAL, TEAL, GRAY, GRAY, GRAY]
 
     fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.7))
     x = np.arange(len(names))
@@ -118,24 +117,24 @@ def fig_compare():
         (axes[0], r3, "Text alignment", "R@3 (higher better)", False),
         (axes[1], fid, "Motion fidelity", "FID (lower better)", True),
     ):
-        bars = ax.bar(x, vals, color=colors, edgecolor=INK, lw=0.5, hatch=hatches)
-        ax.set_xticks(x, names, fontsize=7.5)
+        bars = ax.bar(x, vals, color=colors, edgecolor=INK, lw=0.5)
+        ax.set_xticks(x, names, fontsize=7.0)
         ax.set_title(title)
         ax.set_ylabel(ylabel)
         if invert:
-            ax.set_ylim(0, 1.2)
+            ax.set_ylim(0, 0.65)
         else:
-            ax.set_ylim(0, 0.9)
+            ax.set_ylim(0, 0.95)
         for bar, v in zip(bars, vals):
-            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + (0.015 if not invert else 0.02),
-                    f"{v:.3f}", ha="center", va="bottom", fontsize=7)
+            ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + (0.015 if not invert else 0.012),
+                    f"{v:.3f}", ha="center", va="bottom", fontsize=6.4)
     save(fig, "fig_compare")
 
 
 def fig_recon_gap():
-    labels = ["VAE recon\n(val)", "GALA 50/2.0\n(test)", "GENMO\n(test)", "Real"]
-    fid = [0.003, 0.312, 0.216, 0.002]
-    colors = [BLUE, TEAL, ORANGE, GRAY]
+    labels = ["VAE recon\n(val)", "GALA 50\n(test)", "EMDM\n(test)", "Real"]
+    fid = [0.003, 0.312, 0.112, 0.002]
+    colors = [BLUE, TEAL, GRAY, GRAY]
     fig, ax = plt.subplots(figsize=(4.4, 2.55))
     bars = ax.bar(labels, fid, color=colors, edgecolor=INK, lw=0.5)
     ax.set_ylabel("FID")

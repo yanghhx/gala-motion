@@ -5,7 +5,7 @@ Code for **GALA** (text-to-motion with a graph VAE + rectified flow) and **GALA-
 Paper drafts live under `paper/`. Official HumanML3D numbers use the Guo / MDM evaluator.
 
 - **Code:** https://github.com/yanghhx/gala-motion
-- **T2M Overleaf pack:** `paper/gala_t2m_overleaf/`
+- **T2M Overleaf pack:** `paper/gala_t2m_overleaf/gala_t2m_overleaf/`
 - **World-model Overleaf pack:** `paper/overleaf/`
 
 ## Setup
@@ -35,10 +35,14 @@ python scripts/evaluate_t2m.py \
 
 Reported operating points on HumanML3D test (\(n=4544\), 20 replications):
 
-| Setting | R@3 | FID | MM Dist | Diversity |
-| --- | --- | --- | --- | --- |
-| 20 steps, CFG 2.5 | 0.768 | 0.330 | 3.248 | 9.529 |
-| 50 steps, CFG 2.0 | 0.749 | 0.312 | 3.342 | 9.365 |
+| Setting | NFE | Latency (4060, \(T=196\)) | R@3 | FID | MM Dist | Diversity |
+| --- | --- | --- | --- | --- | --- | --- |
+| 20 steps, CFG 2.5 | 20 | 140 ms | 0.768 | 0.330 | 3.248 | 9.529 |
+| 50 steps, CFG 2.0 | 50 | 340 ms | 0.749 | 0.312 | 3.342 | 9.365 |
+
+Tokenizer reconstruction FID on val: Conv-VAE 0.012 vs CTR-Graph-VAE 0.003.
+
+GALA-v2 (part alignment + kinematic flow) configs: `configs/gala_humanml3d_flow_v2.yaml`. Tokenizer / efficiency scripts: `scripts/eval_tokenizer.py`, `scripts/bench_efficiency.py`.
 
 ## World model (GALA-WM)
 

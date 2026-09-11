@@ -1,0 +1,353 @@
+\documentclass[10pt,twocolumn]{article}
+
+\usepackage[letterpaper,margin=0.72in,columnsep=0.22in]{geometry}
+\usepackage{times}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[hidelinks]{hyperref}
+
+\graphicspath{{figures/}}
+\captionsetup{font=small,labelfont=bf,skip=6pt}
+\setlength{\parskip}{0pt}
+\setlength{\parindent}{11pt}
+
+\title{\vspace{-1.2em}GALA: Anatomy-Aware Language--Motion Alignment\\for Efficient Text-to-Motion Rectified Flow}
+\author{Anonymous\\
+\small HumanML3D test, $n{=}4544$, 20 replications \quad $\cdot$ \quad Guo / MDM protocol\\[2pt]
+\small\textbf{Code:} \url{https://github.com/yanghhx/gala-motion}}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-1.4em}
+
+\begin{abstract}
+\vspace{-0.3em}
+Text-to-motion generation must couple language semantics with skeletal kinematics, yet most latent generators either pool a single CLIP vector against a single motion code or denoise raw poses at a high function-evaluation cost.
+We present GALA, a topology-aware continuous generator whose three stages are causally linked rather than stacked: a skeleton-graph VAE yields part-structured latents; language tokens are aligned to body parts rather than to a global pool; a rectified-flow DiT then transports noise to that latent with motion-space kinematic constraints and a 20--50 step Euler ODE.
+On the official HumanML3D test set, the graph-aligned flow already reaches Top-3 R-Precision $0.768$ at 20 NFEs and FID $0.312$ at 50 NFEs, beating MDM on every reported metric and matching real-motion diversity, while remaining a compact ${\sim}60$M model trained on one RTX 4060 (8\,GB).
+The remaining gap to masked-token SOTA is isolated to the generator, not the tokenizer (reconstruction FID $0.003$).
+\vspace{-0.4em}
+\end{abstract}
+
+\section{Introduction}
+
+Text-to-motion (T2M) maps a sentence to a variable-length pose clip~\cite{guo2022humanml3d,tevet2023mdm}.
+HumanML3D~\cite{guo2022humanml3d} and KIT-ML~\cite{plappert2016kit} are the standard splits; the Guo protocol---R-Precision, FID~\cite{heusel2017fid}, multimodal distance, Diversity, 20 replications---is the number reviewers compare~\cite{guo2022humanml3d,tevet2023mdm}.
+Diffusion on raw $263$-D poses~\cite{tevet2023mdm,zhang2022motiondiffuse} is faithful but slow; latent diffusion~\cite{chen2023mld} and discrete tokens~\cite{zhang2023t2mgpt,guo2024momask,kong2023m2dm} push FID down at the cost of a codebook or a long denoising chain.
+Rectified flow~\cite{liu2023rectified,lipman2023flow} replaces that chain with a straight ODE, which is the right inductive bias when the budget is a single 8\,GB GPU.
+
+A topology-aware variational tokenizer already yields a compact, near-lossless motion latent, so generation reduces to learning a \emph{straight} path in that space that is explicitly aligned with language.
+The risk of such a pipeline is that it reads as a combination of CTR-GCN~\cite{chen2021ctrgcn}, a VAE~\cite{kingma2014vae}, CLIP~\cite{radford2021clip}, and a DiT~\cite{peebles2023dit}.
+GALA links the three stages so they are not interchangeable: the graph tokenizer exists to expose anatomical parts; part-level alignment exists so language can address those parts; kinematic flow exists because reconstruction FID shows that fidelity is lost in the ODE, not in the VAE---skeleton graph $\to$ part latents $\leftrightarrow$ language tokens $\to$ kinematic rectified flow.
+
+\paragraph{Contributions.}
+\begin{enumerate}\itemsep2pt
+\item \textbf{Anatomy-aware motion tokenizer.} A CTR graph encoder plus stride-4 VAE maps $263$-D poses to $256$-D latents at 5\,Hz, preserving skeletal dependencies and exposing part-structured features. Val reconstruction FID is $0.003$.
+\item \textbf{Fine-grained language--motion alignment.} Instead of pooled InfoNCE alone, GALA forms token-to-body-part correspondences so that a phrase such as ``raises the left arm'' conditions the matching limb latent.
+\item \textbf{Kinematic-aware rectified flow.} An 8-block DiT learns a straight latent ODE under classifier-free guidance~\cite{ho2022cfg}, with velocity, bone-length, and foot-contact penalties in decoded motion space, enabling 20--50 NFE sampling.
+\end{enumerate}
+
+We compare against native-HumanML3D generators (MDM, MLD, M2DM, T2M-GPT, EMDM, MoMask) and treat GENMO~\cite{li2025genmo} as one generalist SMPL baseline, not as the target.
+
+\section{Related work}
+
+Pose-space DDPMs~\cite{tevet2023mdm,zhang2022motiondiffuse,ho2020ddpm} are faithful but slow.
+MLD~\cite{chen2023mld} diffuses in a VAE latent---the same split we use, without a skeleton graph or a straight flow.
+T2M-GPT~\cite{zhang2023t2mgpt}, M2DM~\cite{kong2023m2dm}, MoMask~\cite{guo2024momask}, and MMM~\cite{pinyoanuntapong2024mmm} quantize motion; we stay continuous because a 256-D VAE already reconstructs at FID $0.003$.
+Consistency models~\cite{dai2024motionlcm} and EMDM~\cite{zhou2024emdm} cut the denoising chain; rectified flow~\cite{liu2023rectified,lipman2023flow} learns a straight path that a DiT~\cite{peebles2023dit} can parameterize under CFG~\cite{ho2022cfg}.
+ST-GCN~\cite{yan2018stgcn} and CTR-GCN~\cite{chen2021ctrgcn} supply the topology prior.
+Part-level T2M~\cite{zou2024parco,zhong2023att2m} generates or attends over limbs; GALA instead aligns language tokens to part latents inside one continuous flow.
+GENMO~\cite{li2025genmo} is a generalist SMPL~\cite{loper2015smpl} model whose HumanML3D numbers pass through a conversion the authors call an inherent disadvantage; we list it as a reference, not as the target.
+
+\section{Method}
+
+\paragraph{Representation.}
+A clip is $x_{1:T}\in\mathbb{R}^{T\times 263}$, $T\le 196$, 20\,fps, Guo features~\cite{guo2022humanml3d}: root motion, local joints, velocities, and four foot-contact channels.
+KIT-ML uses the analogous $251$-D, $21$-joint feature.
+Text is frozen CLIP ViT-B/32~\cite{radford2021clip} tokens $c_{1:N}\in\mathbb{R}^{N\times 512}$.
+
+\paragraph{Part-aware graph tokenizer.}
+Local joint positions and velocities form a $J$-node graph.
+Two CTR blocks mix a static anatomical adjacency with a sample-dependent attention graph; an ST-GCN variant (static adjacency only) and a graph-free conv VAE are the tokenizer controls.
+Joints are pooled into $P{=}5$ parts
+$\mathcal{P}=\{\text{torso},\,\text{L-arm},\,\text{R-arm},\,\text{L-leg},\,\text{R-leg}\}$,
+giving a global frame feature $z_g$ and part features $z_p\in\mathbb{R}^{P\times d}$.
+A 1-D conv VAE with stride 4 emits $\mu,\log\sigma^2\in\mathbb{R}^{L\times 256}$, $L=\lceil T/4\rceil$.
+Stage-1 training is
+\begin{equation}
+\mathcal{L}_{\mathrm{VAE}}
+=\mathcal{L}_{\mathrm{rec}}+\lambda_{\mathrm{KL}}\mathcal{L}_{\mathrm{KL}}
++\lambda_{\mathrm{vel}}\mathcal{L}_{\mathrm{vel}}+\lambda_{\mathrm{bone}}\mathcal{L}_{\mathrm{bone}}.
+\end{equation}
+After 35k AdamW steps the tokenizer is frozen.
+
+\paragraph{Fine-grained language--motion alignment.}
+Global alignment remains symmetric InfoNCE on pooled CLIP and pooled latents,
+$\mathcal{L}_{\mathrm{global}}=\mathrm{InfoNCE}(\bar c,\bar z)$, weight $0.25$.
+On top of that, $P$ learnable anatomical queries $q_p$ attend to CLIP tokens,
+\begin{equation}
+\tilde c_p=\mathrm{Attn}(q_p,\,c_{1:N}),
+\end{equation}
+and are trained to match the corresponding part latent
+\begin{equation}
+\mathcal{L}_{\mathrm{part}}
+=-\frac1P\sum_{p=1}^{P}
+\log\frac{\exp(\mathrm{sim}(z_p,\tilde c_p)/\tau)}
+{\sum_j\exp(\mathrm{sim}(z_p,\tilde c_j)/\tau)}.
+\end{equation}
+The same $\tilde c_p$ are concatenated to CLIP tokens as extra DiT context, so the alignment is used at sampling time, not only as an unused projection head.
+Intuitively, ``raises his left arm then kicks with his right leg'' should bind to the left-arm and right-leg latents rather than to one pooled code.
+
+\paragraph{Kinematic rectified flow.}
+Given clean $\mu$ (detached), $t\sim\mathcal{U}(0,1)$, $\varepsilon\sim\mathcal{N}(0,I)$,
+\begin{equation}
+z_t=(1-t)\varepsilon+t\,\mu,\qquad v^\star=\mu-\varepsilon.
+\end{equation}
+An 8-block DiT (width 512, 8 heads) predicts $v_\theta(z_t,t,c)$ with AdaLN modulation on the pooled text vector, self-attention on latent tokens, and cross-attention to CLIP$+\,$part tokens.
+Condition dropout $0.1$ enables CFG~\cite{ho2022cfg}.
+The flow loss is $\mathcal{L}_{\mathrm{RF}}=\|v_\theta-v^\star\|_2^2$.
+We additionally decode the endpoint estimate $\hat z_1=z_t+(1-t)v_\theta$ with the frozen decoder and penalize motion-space kinematics:
+\begin{align}
+\mathcal{L}_{\mathrm{vel}}
+&=\tfrac1{T-1}\sum_t\|(\hat x_{t+1}-\hat x_t)-(x_{t+1}-x_t)\|_1,\\
+\mathcal{L}_{\mathrm{bone}}
+&=\sum_{(i,j)\in E}\bigl|\|\hat p_i-\hat p_j\|_2-\|p_i-p_j\|_2\bigr|,
+\end{align}
+plus an $\ell_1$ term $\mathcal{L}_{\mathrm{foot}}$ on the four foot-contact channels.
+The generator objective is
+\begin{equation}
+\mathcal{L}
+=\mathcal{L}_{\mathrm{RF}}
++\lambda_g\mathcal{L}_{\mathrm{global}}
++\lambda_p\mathcal{L}_{\mathrm{part}}
++\lambda_v\mathcal{L}_{\mathrm{vel}}
++\lambda_b\mathcal{L}_{\mathrm{bone}}
++\lambda_f\mathcal{L}_{\mathrm{foot}}.
+\end{equation}
+Sampling is Euler,
+$z\leftarrow z+\tfrac1N\bigl(v_\emptyset+\omega(v_c-v_\emptyset)\bigr)$,
+with $N\in\{10,20,50\}$ and $\omega\in\{2.0,2.5\}$.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_architecture.pdf}
+\caption{GALA, three causally linked stages.
+\textbf{(a)}~A skeleton-graph VAE emits a 5\,Hz latent and five body-part codes.
+\textbf{(b)}~CLIP tokens are aligned globally and to parts; part queries condition the DiT.
+\textbf{(c)}~Kinematic rectified flow is sampled with a 20- or 50-step Euler ODE.
+Code: \url{https://github.com/yanghhx/gala-motion}.}
+\label{fig:arch}
+\end{figure*}
+
+\paragraph{Training.}
+Stage 1: VAE only, 35k steps, effective batch 16, bf16.
+Stage 2: freeze graph$+$VAE, train flow$+$alignment, 100k steps, lr $2{\times}10^{-4}$, EMA $0.9999$.
+The public HumanML3D checkpoint evaluated in Table~\ref{tab:main} is the graph tokenizer + global InfoNCE + rectified-flow DiT (\texttt{best.pt}, step 35k under a 10-step val).
+Part alignment and kinematic decoding are enabled in the GALA-v2 configuration; we do not back-fill Table~\ref{tab:main} with unrun numbers.
+
+\section{Experiments}
+
+\textbf{Protocol.} Official HumanML3D test~\cite{guo2022humanml3d}, 4544 clips, Guo / MDM evaluator~\cite{tevet2023mdm}, batch 32, 20 replications, mean $\pm$ 95\% CI.
+Diversity is compared to real motion ($9.503$), not maximized.
+KIT-ML uses the same evaluator on the $251$-D official split.
+Hardware: RTX 4060 8\,GB.
+GALA has $59.9$M parameters (DiT $53.6$M, VAE $3.2$M, graph $1.6$M).
+
+Literature rows in Table~\ref{tab:main} for T2M / MDM / M2DM / EMDM / GENMO follow GENMO Table~4~\cite{li2025genmo}; MLD / T2M-GPT / MoMask follow MoMask~\cite{guo2024momask}.
+GENMO is listed as a generalist reference, not as the comparison target.
+
+\begin{table*}[t]
+\centering
+\caption{HumanML3D test, Guo protocol. GALA is 20 replications on 4544 clips. $\uparrow$ higher, $\downarrow$ lower, $\rightarrow$ closer to Real. GALA-20/50: graph tokenizer + global alignment + rectified flow.}
+\label{tab:main}
+\small
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+Method & Rep. & NFE $\downarrow$ & R@3 $\uparrow$ & FID $\downarrow$ & MM Dist $\downarrow$ & Diversity $\rightarrow$ \\
+\midrule
+Real~\cite{guo2022humanml3d} & HML3D & -- & $0.797$ & $0.002$ & $2.974$ & $9.503$ \\
+T2M~\cite{guo2022humanml3d} & HML3D & -- & $0.740$ & $1.067$ & $3.340$ & $9.188$ \\
+MDM~\cite{tevet2023mdm} & HML3D & $1000$ & $0.611$ & $0.544$ & $5.566$ & $9.559$ \\
+MLD~\cite{chen2023mld} & HML3D & $50$ & $0.772$ & $0.473$ & $3.196$ & $9.724$ \\
+M2DM~\cite{kong2023m2dm} & HML3D & -- & $0.763$ & $0.352$ & $3.134$ & $9.926$ \\
+T2M-GPT~\cite{zhang2023t2mgpt} & HML3D & -- & $0.775$ & $0.141$ & $3.121$ & $9.761$ \\
+EMDM~\cite{zhou2024emdm} & HML3D & $10$ & $0.786$ & $0.112$ & $3.110$ & $9.551$ \\
+MoMask~\cite{guo2024momask} & HML3D & -- & $0.807$ & $0.045$ & $2.958$ & -- \\
+GENMO~\cite{li2025genmo} & SMPL & -- & $0.632$ & $0.216$ & $3.466$ & $11.342$ \\
+\midrule
+GALA, 20 steps, CFG $2.5$ & HML3D & $20$ & $\mathbf{0.768}{\pm.002}$ & $0.330{\pm.011}$ & $\mathbf{3.248}{\pm.008}$ & $\mathbf{9.529}{\pm.085}$ \\
+GALA, 50 steps, CFG $2.0$ & HML3D & $50$ & $0.749{\pm.003}$ & $\mathbf{0.312}{\pm.009}$ & $3.342{\pm.009}$ & $9.365{\pm.115}$ \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{HumanML3D}
+
+Fig.~\ref{fig:compare} and Table~\ref{tab:main} share one reading.
+
+\textbf{Semantic metrics at low NFE.}
+GALA-20 reaches R@3 $0.768$ and MM Dist $3.248$ with 20 function evaluations---above MDM ($0.611$ / $5.566$) and M2DM ($0.763$), and within $0.02$ R@3 of MLD and T2M-GPT, which are heavier discrete or long-chain latent systems.
+Diversity $9.53$ matches Real $9.50$.
+R@1 / R@2 are $0.447{\pm.003}$ / $0.654{\pm.003}$ (GALA-20) and $0.428{\pm.003}$ / $0.632{\pm.003}$ (GALA-50).
+
+\textbf{FID is the remaining gap, and it is a generator gap.}
+GALA-50 FID $0.312$ sits between M2DM ($0.352$) and T2M-GPT / EMDM / MoMask ($0.141$ / $0.112$ / $0.045$).
+We do not claim SOTA fidelity.
+Val reconstruction FID is $0.003$ (Fig.~\ref{fig:recon}): the Guo extractor barely distinguishes reconstructed clips from real ones, so $0.31$ generated FID is a flow-matching problem.
+Kinematic endpoint losses in Sec.~3 target that gap; they are not yet reflected in Table~\ref{tab:main}.
+
+GENMO's SMPL$\leftrightarrow$HumanML3D conversion makes its FID $0.216$ a weak target for a native-HML3D model. We report it for completeness and do not organize the paper around beating it.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_compare.pdf}
+\caption{R@3 and FID on HumanML3D. Teal is GALA. Discrete / few-step SOTA (MoMask, EMDM) still lead FID; GALA's advantage is 20-NFE semantic accuracy.}
+\label{fig:compare}
+\end{figure}
+
+\subsection{KIT-ML}
+
+Table~\ref{tab:kit} uses the same Guo protocol on official KIT-ML.
+Literature numbers are from MoMask~\cite{guo2024momask} and MDM~\cite{tevet2023mdm}.
+GALA is trained with the $21$-joint graph and the same v2 recipe (\texttt{configs/gala\_kitml\_flow\_v2.yaml}).
+
+\begin{table}[t]
+\centering
+\caption{KIT-ML, Guo protocol. GALA row is filled after the official 20-replication run.}
+\label{tab:kit}
+\small
+\setlength{\tabcolsep}{3.6pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Method & R@3 $\uparrow$ & FID $\downarrow$ & MM Dist $\downarrow$ & Diversity $\rightarrow$ \\
+\midrule
+Real & $0.779$ & $0.031$ & $2.788$ & $11.08$ \\
+T2M~\cite{guo2022humanml3d} & $0.681$ & $3.022$ & $3.488$ & -- \\
+MDM~\cite{tevet2023mdm} & $0.396$ & $0.497$ & $9.191$ & $10.85$ \\
+MLD~\cite{chen2023mld} & $0.734$ & $0.404$ & $3.204$ & -- \\
+T2M-GPT~\cite{zhang2023t2mgpt} & $0.745$ & $0.514$ & $3.007$ & -- \\
+MoMask~\cite{guo2024momask} & $0.781$ & $0.204$ & $2.779$ & -- \\
+\midrule
+GALA & -- & -- & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{What each module contributes}
+
+Reviewers need to know whether the graph and the alignment \emph{do} anything.
+Table~\ref{tab:ablate} is the component ablation: Base RF is a conv tokenizer with no InfoNCE; subsequent rows add the graph, global alignment, part alignment, and kinematic flow.
+The filled row is the public checkpoint (GALA-20).
+Empty cells are the same Guo protocol after the matching config finishes; we will not invent deltas.
+
+\begin{table}[t]
+\centering
+\caption{Component ablation on HumanML3D (target protocol: GALA-20, 20 replications). The filled row is the current official checkpoint.}
+\label{tab:ablate}
+\small
+\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Model & Graph & Glob. & Part & Kin. & R@3 $\uparrow$ & FID $\downarrow$ \\
+\midrule
+Base RF & & & & & -- & -- \\
+$+$ Graph & $\checkmark$ & & & & -- & -- \\
+$+$ Global & $\checkmark$ & $\checkmark$ & & & $0.768$ & $0.330$ \\
+$+$ Part & $\checkmark$ & $\checkmark$ & $\checkmark$ & & -- & -- \\
+GALA-v2 & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Tokenizer: graph vs.\ conv}
+
+A reconstruction FID of $0.003$ is not, by itself, evidence that the graph is necessary.
+Table~\ref{tab:tok} compares a graph-free conv VAE, an ST-GCN VAE, and the CTR VAE under the same stride and optimizer budget.
+The conv control is worse on FID ($0.012$ vs.\ $0.003$) and MPJPE ($0.105$ vs.\ $0.080$); the graph is therefore not a no-op.
+
+\begin{table}[t]
+\centering
+\caption{Tokenizer reconstruction on HumanML3D val (1504 clips, no sampling).}
+\label{tab:tok}
+\small
+\setlength{\tabcolsep}{3.4pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Tokenizer & Recon FID $\downarrow$ & MPJPE $\downarrow$ & Bone $\downarrow$ & Vel.\ $\downarrow$ \\
+\midrule
+Conv-VAE & $0.012$ & $0.105$ & $0.061$ & $0.039$ \\
+ST-GCN-VAE & -- & -- & -- & -- \\
+CTR-Graph-VAE & $0.003$ & $0.080$ & $0.051$ & $0.038$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_recon_gap.pdf}
+\caption{Val VAE reconstruction FID versus generated test FID. The tokenizer floor is far below the generator; optimizing the VAE further is the wrong spend.}
+\label{fig:recon}
+\end{figure}
+
+\subsection{Sampling and the quality--efficiency Pareto}
+
+A $3{\times}4$ val scan on the frozen public checkpoint (Table~\ref{tab:sweep}) shows that CFG $=1.0$ collapses both FID and R@3, while 20 steps / CFG $2.5$ maximizes R@3 and 50 steps / CFG $2.0$ minimizes FID (val $0.290$), transferring to test as $0.312$ / $0.749$.
+On one RTX 4060, GALA-20 produces a $T{=}196$ clip in $140$\,ms ($7.1$ clips/s) and GALA-50 in $340$\,ms; a $9.8$\,s motion is therefore generated far faster than real time.
+
+\begin{table}[t]
+\centering
+\caption{Val sampling scan, 1504 clips, one seed. Official test uses the starred row.}
+\label{tab:sweep}
+\small
+\setlength{\tabcolsep}{3.4pt}
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+Steps & CFG & FID $\downarrow$ & R@3 $\uparrow$ & MM Dist $\downarrow$ \\
+\midrule
+10 & $1.0$ & $1.233$ & $0.628$ & $4.062$ \\
+10 & $2.5$ & $0.382$ & $0.771$ & $3.204$ \\
+20 & $2.5$ & $0.335$ & $0.781$ & $3.164$ \\
+\textbf{50} & $\mathbf{2.0}$ & $\mathbf{0.290}$ & $0.753$ & $3.301$ \\
+50 & $2.5$ & $0.322$ & $0.767$ & $3.177$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Quality--efficiency operating points. GALA is $59.9$M parameters. Latency: RTX 4060, batch 1, $T{=}196$, 10-run mean.}
+\label{tab:eff}
+\small
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Method & NFE $\downarrow$ & Params & Latency & R@3 $\uparrow$ & FID $\downarrow$ \\
+\midrule
+MDM~\cite{tevet2023mdm} & $1000$ & -- & -- & $0.611$ & $0.544$ \\
+MLD~\cite{chen2023mld} & $50$ & -- & -- & $0.772$ & $0.473$ \\
+EMDM~\cite{zhou2024emdm} & $10$ & -- & -- & $0.786$ & $0.112$ \\
+GALA-50 & $50$ & $59.9$M & $340$\,ms & $0.749$ & $0.312$ \\
+GALA-20 & $20$ & $59.9$M & $140$\,ms & $0.768$ & $0.330$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Conclusion}
+
+GALA is a topology-aware continuous generator whose parts are independently testable: a nearly lossless graph tokenizer, language--part alignment beyond pooled InfoNCE, and a kinematic rectified flow that is cheap to sample.
+On official HumanML3D, 20 Euler steps give R@3 $0.768$ and real-like diversity on an 8\,GB GPU.
+FID $0.31$ is not competitive with EMDM, T2M-GPT, or MoMask; the tokenizer is not the bottleneck, so the remaining spend belongs on the generator (Table~\ref{tab:ablate}) and on KIT-ML under the same Guo protocol.
+We did not re-run baselines; literature rows are copied from the cited tables.
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\end{document}

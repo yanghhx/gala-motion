@@ -1,4 +1,4 @@
-experiment: gala_motion_humanml3d
+experiment: gala_motion_humanml3d_nograph
 seed: 3407
 dataset:
   root: /home/qinyang/桌面/project/data/HumanML3D
@@ -17,8 +17,8 @@ model:
   text_encoder_type: clip
   train_stage: flow
   stride: 4
-  graph_type: ctr
-  use_graph: true
+  graph_type: none
+  use_graph: false
   use_alignment: true
   use_part_align: false
   use_kinematic_flow: false
@@ -40,5 +40,5 @@ training:
   num_workers: 2
   precision: bf16
   gradient_clip: 1.0
-  checkpoint_dir: /home/qinyang/桌面/project/checkpoints/gala_humanml3d_flow
-  log_dir: /home/qinyang/桌面/project/runs/gala_humanml3d_flow
+  checkpoint_dir: /home/qinyang/桌面/project/checkpoints/gala_humanml3d_flow_nograph
+  log_dir: /home/qinyang/桌面/project/runs/gala_humanml3d_flow_nograph

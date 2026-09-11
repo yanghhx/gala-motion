@@ -99,6 +99,47 @@ def test_flow_stage_freezes_vae():
     assert not any(p.requires_grad for p in model.vae.parameters())
 
 
+def test_part_align_and_kinematic_flow_are_finite():
+    cfg = GALAMotionConfig(
+        motion_dim=263, num_joints=22, latent_dim=64, model_dim=64,
+        text_dim=48, num_heads=4, graph_layers=2, dit_layers=2,
+        max_frames=40, train_stage="flow", use_part_align=True, use_kinematic_flow=True,
+    )
+    model = GALAMotion(cfg)
+    motion = torch.randn(2, 40, 263)
+    lengths = torch.tensor([40, 28])
+    text = torch.randn(2, 8, 48)
+    text_mask = torch.ones(2, 8, dtype=torch.bool)
+    losses = model.compute_losses(motion, lengths, text, text_mask)
+    assert losses["part"].abs() > 0
+    assert losses["kin_velocity"].abs() >= 0
+    assert all(torch.isfinite(value) for value in losses.values())
+    losses["total"].backward()
+    assert any(p.grad is not None and torch.count_nonzero(p.grad) > 0 for p in model.part_alignment.parameters())
+    assert any(p.grad is not None and torch.count_nonzero(p.grad) > 0 for p in model.flow.parameters())
+    with torch.no_grad():
+        sample = model.sample(text, text_mask, lengths, steps=2, guidance_scale=1.5)
+    assert sample.shape == (2, 40, 263)
+
+
+def test_conv_and_stgcn_tokenizers_run():
+    motion = torch.randn(2, 32, 263)
+    lengths = torch.tensor([32, 20])
+    text = torch.randn(2, 4, 48)
+    text_mask = torch.ones(2, 4, dtype=torch.bool)
+    for graph_type, use_graph in (("none", False), ("stgcn", True)):
+        cfg = GALAMotionConfig(
+            motion_dim=263, num_joints=22, latent_dim=64, model_dim=64,
+            text_dim=48, num_heads=4, graph_layers=2, dit_layers=1,
+            max_frames=32, train_stage="vae", graph_type=graph_type, use_graph=use_graph,
+        )
+        model = GALAMotion(cfg)
+        losses = model.compute_losses(motion, lengths, text, text_mask)
+        assert torch.isfinite(losses["total"])
+        losses["total"].backward()
+        assert any(p.grad is not None for p in model.vae.parameters())
+
+
 def test_sampling_shape_and_padding():
     model = tiny_model().eval()
     text = torch.randn(2, 10, 48)

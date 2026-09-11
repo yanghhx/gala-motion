@@ -1,4 +1,4 @@
-experiment: gala_motion_humanml3d
+experiment: gala_motion_humanml3d_part
 seed: 3407
 dataset:
   root: /home/qinyang/桌面/project/data/HumanML3D
@@ -20,10 +20,11 @@ model:
   graph_type: ctr
   use_graph: true
   use_alignment: true
-  use_part_align: false
+  use_part_align: true
   use_kinematic_flow: false
   cond_drop_prob: 0.1
   lambda_alignment: 0.25
+  lambda_part: 0.25
 training:
   batch_size_per_gpu: 4
   grad_accum: 4
@@ -40,5 +41,5 @@ training:
   num_workers: 2
   precision: bf16
   gradient_clip: 1.0
-  checkpoint_dir: /home/qinyang/桌面/project/checkpoints/gala_humanml3d_flow
-  log_dir: /home/qinyang/桌面/project/runs/gala_humanml3d_flow
+  checkpoint_dir: /home/qinyang/桌面/project/checkpoints/gala_humanml3d_flow_part
+  log_dir: /home/qinyang/桌面/project/runs/gala_humanml3d_flow_part

@@ -1,4 +1,4 @@
-experiment: gala_motion_humanml3d
+experiment: gala_motion_humanml3d_vae_conv
 seed: 3407
 dataset:
   root: /home/qinyang/桌面/project/data/HumanML3D
@@ -15,30 +15,23 @@ model:
   dit_layers: 8
   text_layers: 0
   text_encoder_type: clip
-  train_stage: flow
+  train_stage: vae
   stride: 4
-  graph_type: ctr
-  use_graph: true
-  use_alignment: true
-  use_part_align: false
-  use_kinematic_flow: false
+  graph_type: none
+  use_graph: false
   cond_drop_prob: 0.1
   lambda_alignment: 0.25
 training:
   batch_size_per_gpu: 4
   grad_accum: 4
-  epochs: 80
-  max_steps: 100000
-  eval_every_steps: 5000
-  eval_max_samples: 320
-  eval_steps: 20
-  eval_guidance: 2.5
-  ema_decay: 0.9999
-  early_stop_fid_patience: 3
+  epochs: 40
+  max_steps: 35000
+  eval_every_steps: 0
+  early_stop_fid_patience: 0
   learning_rate: 0.0002
   weight_decay: 0.01
   num_workers: 2
   precision: bf16
   gradient_clip: 1.0
-  checkpoint_dir: /home/qinyang/桌面/project/checkpoints/gala_humanml3d_flow
-  log_dir: /home/qinyang/桌面/project/runs/gala_humanml3d_flow
+  checkpoint_dir: /home/qinyang/桌面/project/checkpoints/gala_humanml3d_vae_conv
+  log_dir: /home/qinyang/桌面/project/runs/gala_humanml3d_vae_conv

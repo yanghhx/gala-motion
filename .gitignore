@@ -25,6 +25,14 @@ repo-fetch.*/
 events.out.tfevents.*
 *.log
 
+# latex build artifacts
+*.aux
+*.out
+*.blg
+*.synctex.gz
+*.synctex(busy)
+
+
 # paper export duplicates
 paper/GALA_WM_PREVIEW*.pdf
 paper/gala_wm_overleaf_v*.zip

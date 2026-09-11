@@ -8,6 +8,12 @@ def masked_mean(x: torch.Tensor, mask: torch.Tensor, dim: int) -> torch.Tensor:
     return (x * weight).sum(dim) / weight.sum(dim).clamp_min(1)
 
 
+def _symmetric_nce(a: torch.Tensor, b: torch.Tensor, logit_scale: torch.Tensor) -> torch.Tensor:
+    logits = logit_scale.exp().clamp(max=100) * a @ b.T
+    labels = torch.arange(logits.shape[0], device=logits.device)
+    return (F.cross_entropy(logits, labels) + F.cross_entropy(logits.T, labels)) / 2
+
+
 class LanguageMotionAlignment(nn.Module):
     def __init__(self, text_dim: int, motion_dim: int, embed_dim: int):
         super().__init__()
@@ -22,8 +28,46 @@ class LanguageMotionAlignment(nn.Module):
 
     def forward(self, text, text_mask, motion, motion_mask):
         text_emb, motion_emb = self.embeddings(text, text_mask, motion, motion_mask)
-        logits = self.logit_scale.exp().clamp(max=100) * text_emb @ motion_emb.T
-        labels = torch.arange(logits.shape[0], device=logits.device)
-        loss = (F.cross_entropy(logits, labels) + F.cross_entropy(logits.T, labels)) / 2
-        return loss, text_emb, motion_emb
+        return _symmetric_nce(text_emb, motion_emb, self.logit_scale), text_emb, motion_emb
+
+
+class PartLanguageAlignment(nn.Module):
+    """Learnable anatomical queries attend to CLIP tokens and match body-part latents.
+
+    Query embeddings are text-only, so the same part tokens can condition the DiT
+    at sampling time. Training aligns each part query with the pooled graph latent
+    of that body part (torso, arms, legs).
+    """
+
+    def __init__(self, text_dim: int, motion_dim: int, embed_dim: int, num_parts: int = 5):
+        super().__init__()
+        self.num_parts = num_parts
+        self.part_queries = nn.Parameter(torch.randn(num_parts, text_dim) * 0.02)
+        self.query_proj = nn.Linear(text_dim, embed_dim)
+        self.key_proj = nn.Linear(text_dim, embed_dim)
+        self.value_proj = nn.Linear(text_dim, embed_dim)
+        self.part_out = nn.Linear(embed_dim, text_dim)
+        self.motion_proj = nn.Sequential(nn.LayerNorm(motion_dim), nn.Linear(motion_dim, embed_dim))
+        self.lang_proj = nn.Sequential(nn.LayerNorm(text_dim), nn.Linear(text_dim, embed_dim))
+        self.logit_scale = nn.Parameter(torch.tensor(1 / 0.07).log())
+
+    def part_text(self, text: torch.Tensor, text_mask: torch.Tensor) -> torch.Tensor:
+        batch = text.shape[0]
+        query = self.query_proj(self.part_queries).unsqueeze(0).expand(batch, -1, -1)
+        key = self.key_proj(text)
+        value = self.value_proj(text)
+        logits = torch.matmul(query, key.transpose(-1, -2)) * (query.shape[-1] ** -0.5)
+        logits = logits.masked_fill(~text_mask[:, None], torch.finfo(logits.dtype).min)
+        attn = logits.softmax(dim=-1)
+        return self.part_out(torch.matmul(attn, value))
+
+    def forward(self, part_motion: torch.Tensor, text: torch.Tensor, text_mask: torch.Tensor):
+        part_tokens = self.part_text(text, text_mask)
+        motion_emb = F.normalize(self.motion_proj(part_motion), dim=-1)
+        lang_emb = F.normalize(self.lang_proj(part_tokens), dim=-1)
+        losses = [
+            _symmetric_nce(motion_emb[:, index], lang_emb[:, index], self.logit_scale)
+            for index in range(part_motion.shape[1])
+        ]
+        return torch.stack(losses).mean(), part_tokens
 

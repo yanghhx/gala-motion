@@ -1,0 +1,133 @@
+\begin{thebibliography}{25}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Guo et~al.(2022)Guo, Zou, Zuo, Wang, Ji, Li, and Cheng]{guo2022humanml3d}
+Chuan Guo, Shihao Zou, Xinxin Zuo, Sen Wang, Wei Ji, Xingyu Li, and Li~Cheng.
+\newblock Generating diverse and natural {3D} human motions from text.
+\newblock In \emph{CVPR}, 2022.
+
+\bibitem[Tevet et~al.(2023)Tevet, Raab, Gordon, Shafir, Cohen-Or, and Bermano]{tevet2023mdm}
+Guy Tevet, Sigal Raab, Brian Gordon, Yonatan Shafir, Daniel Cohen-Or, and Amit~H Bermano.
+\newblock Human motion diffusion model.
+\newblock In \emph{ICLR}, 2023.
+
+\bibitem[Plappert et~al.(2016)Plappert, Mandery, and Asfour]{plappert2016kit}
+Matthias Plappert, Christian Mandery, and Tamim Asfour.
+\newblock The {KIT} motion-language dataset.
+\newblock In \emph{BMVC}, 2016.
+
+\bibitem[Heusel et~al.(2017)Heusel, Ramsauer, Unterthiner, Nessler, and Hochreiter]{heusel2017fid}
+Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp Hochreiter.
+\newblock {GANs} trained by a two time-scale update rule converge to a local {Nash} equilibrium.
+\newblock In \emph{NeurIPS}, 2017.
+
+\bibitem[Zhang et~al.(2022)Zhang, Cai, Pan, Hong, Guo, Yang, and Liu]{zhang2022motiondiffuse}
+Mingyuan Zhang, Zhongang Cai, Liang Pan, Fangzhou Hong, Xinying Guo, Lei Yang, and Ziwei Liu.
+\newblock {MotionDiffuse}: Text-driven human motion generation with diffusion model.
+\newblock In \emph{arXiv preprint arXiv:2208.15001}, 2022.
+
+\bibitem[Chen et~al.(2023)Chen, Jiang, Liu, Huang, Fu, Chen, and Yu]{chen2023mld}
+Xin Chen, Biao Jiang, Wen Liu, Zilong Huang, Bin Fu, Tao Chen, and Gang Yu.
+\newblock {MLD}: A motion latent diffusion model for text-to-motion generation.
+\newblock In \emph{ICCV}, 2023.
+
+\bibitem[Zhang et~al.(2023)Zhang, Zhang, Cun, Zhang, Zhao, Lu, Shen, and Shan]{zhang2023t2mgpt}
+Jianrong Zhang, Yangsong Zhang, Xiaodong Cun, Yong Zhang, Hongwei Zhao, Hongtao Lu, Xi~Shen, and Ying Shan.
+\newblock {T2M-GPT}: Generating human motion from textual descriptions with discrete representations.
+\newblock In \emph{CVPR}, 2023.
+
+\bibitem[Guo et~al.(2024)Guo, Mu, Javed, Wang, and Cheng]{guo2024momask}
+Chuan Guo, Yuxuan Mu, Muhammad~Gohar Javed, Sen Wang, and Li~Cheng.
+\newblock {MoMask}: Generative masked modeling of {3D} human motions.
+\newblock In \emph{CVPR}, 2024.
+
+\bibitem[Kong et~al.(2023)Kong, Gong, Lian, Mi, and Wang]{kong2023m2dm}
+Hanyang Kong, Kehong Gong, Dongze Lian, Michael~Bi Mi, and Jinpeng Wang.
+\newblock Priority-centric human motion generation in discrete latent space.
+\newblock In \emph{ICCV}, 2023.
+
+\bibitem[Liu et~al.(2023)Liu, Gong, and Liu]{liu2023rectified}
+Xingchao Liu, Chengyue Gong, and Qiang Liu.
+\newblock Flow straight and fast: {R}ectified flow for generative modeling.
+\newblock In \emph{ICLR}, 2023.
+
+\bibitem[Lipman et~al.(2023)Lipman, Chen, Ben-Hamu, Nickel, and Le]{lipman2023flow}
+Yaron Lipman, Ricky T~Q Chen, Heli Ben-Hamu, Maximilian Nickel, and Matt Le.
+\newblock Flow matching for generative modeling.
+\newblock 2023.
+
+\bibitem[Chen et~al.(2021)Chen, Zhang, Yuan, Li, Deng, and Hu]{chen2021ctrgcn}
+Yuxin Chen, Ziqi Zhang, Chunfeng Yuan, Bing Li, Ying Deng, and Weiming Hu.
+\newblock Channel-wise topology refinement graph convolution for skeleton-based action recognition.
+\newblock In \emph{ICCV}, 2021.
+
+\bibitem[Kingma and Welling(2014)]{kingma2014vae}
+Diederik~P Kingma and Max Welling.
+\newblock Auto-encoding variational {B}ayes.
+\newblock In \emph{ICLR}, 2014.
+
+\bibitem[Radford et~al.(2021)Radford, Kim, Hallacy, Ramesh, Goh, Agarwal, Sastry, Askell, Mishkin, Clark, et~al.]{radford2021clip}
+Alec Radford, Jong~Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et~al.
+\newblock Learning transferable visual models from natural language supervision.
+\newblock In \emph{ICML}, 2021.
+
+\bibitem[Peebles and Xie(2023)]{peebles2023dit}
+William Peebles and Saining Xie.
+\newblock Scalable diffusion models with transformers.
+\newblock In \emph{ICCV}, 2023.
+
+\bibitem[Ho and Salimans(2022)]{ho2022cfg}
+Jonathan Ho and Tim Salimans.
+\newblock Classifier-free diffusion guidance.
+\newblock \emph{arXiv preprint arXiv:2207.12598}, 2022.
+
+\bibitem[Li et~al.(2025)Li, Cao, Zhang, Rempe, Kautz, Iqbal, and Yuan]{li2025genmo}
+Jiefeng Li, Jinkun Cao, Haotian Zhang, Davis Rempe, Jan Kautz, Umar Iqbal, and Ye~Yuan.
+\newblock {GENMO}: A {GEN}eralist model for human {MO}tion.
+\newblock In \emph{ICCV}, pages 11766--11776, 2025.
+
+\bibitem[Ho et~al.(2020)Ho, Jain, and Abbeel]{ho2020ddpm}
+Jonathan Ho, Ajay Jain, and Pieter Abbeel.
+\newblock Denoising diffusion probabilistic models.
+\newblock In \emph{NeurIPS}, 2020.
+
+\bibitem[Pinyoanuntapong et~al.(2024)Pinyoanuntapong, Saleem, Wang, Lee, and Das]{pinyoanuntapong2024mmm}
+Ekkasit Pinyoanuntapong, Muhammad~Usama Saleem, Pu~Wang, Minwoo Lee, and Srijan Das.
+\newblock {MMM}: Generative masked motion model.
+\newblock In \emph{CVPR}, 2024.
+
+\bibitem[Dai et~al.(2024)Dai, Chen, Wang, Dai, Pons-Moll, et~al.]{dai2024motionlcm}
+Wenxun Dai, Ling-Hao Chen, Jingbo Wang, Jinpeng Dai, Gerard Pons-Moll, et~al.
+\newblock {MotionLCM}: Real-time controllable motion generation via latent consistency model.
+\newblock In \emph{ECCV}, 2024.
+
+\bibitem[Zhou et~al.(2024)Zhou, Dou, Cao, Liao, Wang, Dai, et~al.]{zhou2024emdm}
+Wenyang Zhou, Zhiyong Dou, Zeyu Cao, Ziyang Liao, Jingbo Wang, Wenjia Dai, et~al.
+\newblock {EMDM}: Efficient motion diffusion model for fast and high-quality motion generation.
+\newblock In \emph{ICLR}, 2024.
+
+\bibitem[Yan et~al.(2018)Yan, Xiong, and Lin]{yan2018stgcn}
+Sijie Yan, Yuanjun Xiong, and Dahua Lin.
+\newblock Spatial temporal graph convolutional networks for skeleton-based action recognition.
+\newblock In \emph{AAAI}, 2018.
+
+\bibitem[Zou et~al.(2024)]{zou2024parco}
+Qiran Zou et~al.
+\newblock {ParCo}: Part-coordinating text-to-motion synthesis.
+\newblock In \emph{ECCV}, 2024.
+
+\bibitem[Zhong et~al.(2023)Zhong, Hu, Zhang, and Xia]{zhong2023att2m}
+Chongyang Zhong, Lei Hu, Ziwei Zhang, and Shihong Xia.
+\newblock {AttT2M}: Text-driven human motion generation with multi-perspective attention mechanism.
+\newblock In \emph{ICCV}, 2023.
+
+\bibitem[Loper et~al.(2015)Loper, Mahmood, Romero, Pons-Moll, and Black]{loper2015smpl}
+Matthew Loper, Naureen Mahmood, Javier Romero, Gerard Pons-Moll, and Michael~J Black.
+\newblock {SMPL}: A skinned multi-person linear model.
+\newblock \emph{ACM TOG}, 34\penalty0 (6), 2015.
+
+\end{thebibliography}

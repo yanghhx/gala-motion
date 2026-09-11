@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, FancyArrowPatch, FancyBboxPatch
 
 ROOT = Path("/home/qinyang/桌面/project")
-OUT = ROOT / "paper" / "gala_t2m_overleaf" / "figures"
+OUT = ROOT / "paper" / "gala_t2m_overleaf" / "gala_t2m_overleaf" / "figures"
 
 INK = "#1F2933"
 MUTE = "#5B6770"
@@ -123,9 +123,9 @@ def main():
     pb, pwb = pa + pwa + gap, 2.42
     pc, pwc = pb + pwb + gap, 1.99
     py, ph = 0.08, 3.40
-    panel(ax, pa, py, pwa, ph, B_FILL, "(a)", "Graph tokenizer")
-    panel(ax, pb, py, pwb, ph, G_FILL, "(b)", "Text-conditioned flow")
-    panel(ax, pc, py, pwc, ph, P_FILL, "(c)", "Sample and decode")
+    panel(ax, pa, py, pwa, ph, B_FILL, "(a)", "Part-aware tokenizer")
+    panel(ax, pb, py, pwb, ph, G_FILL, "(b)", "Language–part alignment")
+    panel(ax, pc, py, pwc, ph, P_FILL, "(c)", "Kinematic rectified flow")
     content_top = py + ph - 0.40  # below the header rule
 
     # ---------- (a) ----------
@@ -146,11 +146,11 @@ def main():
     enc_y, enc_h = 1.70, 0.42
     varr(ax, mx, fy, enc_y + enc_h)
     module(ax, pa + 0.14, enc_y, pwa - 0.28, enc_h,
-           "Graph encoder", "CTR topology  +  joint velocity", BLUE, BLUE)
+           "Part-aware graph", "CTR topology  +  5 body parts", BLUE, BLUE)
     vae_y, vae_h = 1.14, 0.42
     varr(ax, mx, enc_y, vae_y + vae_h)
     module(ax, pa + 0.14, vae_y, pwa - 0.28, vae_h,
-           "Topology VAE", r"stride 4,   $z\in\mathbb{R}^{L\times 256}$", BLUE, BLUE)
+           "Topology VAE", r"stride 4,   $z,\,z_p$", BLUE, BLUE)
 
     cw, ch, cg = 0.28, 0.26, 0.07
     nchip = 5
@@ -171,7 +171,7 @@ def main():
     ali_y, ali_h = 2.08, 0.44
     varr(ax, pb + pwb / 2, clip_y, ali_y + ali_h)
     module(ax, pb + 0.14, ali_y, pwb - 0.28, ali_h,
-           "Language–motion alignment", r"InfoNCE on pooled $c$ and $z$", TEAL, TEAL)
+           "Token $\leftrightarrow$ body-part", r"global InfoNCE  +  part queries", TEAL, TEAL)
 
     dit_x, dit_w = pb + 0.14, pwb - 0.52
     dit_y, dit_h = 0.20, 1.74
@@ -180,13 +180,13 @@ def main():
     ax.text(dit_x + dit_w / 2, dit_y + dit_h - 0.15, "Rectified-flow DiT",
             ha="center", va="center", fontsize=8.1, fontweight="bold", color=TEAL)
     ax.text(dit_x + dit_w / 2, dit_y + dit_h - 0.36,
-            r"$z_t=(1-t)\varepsilon+t\,z$  ·  $v=z-\varepsilon$",
+            r"$z_t=(1-t)\varepsilon+t\,z$  ·  kinematic $x$-loss",
             ha="center", va="center", fontsize=6.7, color=MUTE)
 
     layers = [
         ("AdaLN", "time + pooled text"),
         ("Self-attention", r"on $z_t$"),
-        ("Cross-attention", "to CLIP tokens"),
+        ("Cross-attention", "CLIP + part tokens"),
         ("FFN", r"CFG drop  $0.1$"),
     ]
     lh, lg = 0.25, 0.045
@@ -217,7 +217,7 @@ def main():
     eul_y = 1.78
     varr(ax, pc + pwc / 2, ochip_y, eul_y + eul_h)
     module(ax, pc + 0.14, eul_y, pwc - 0.28, eul_h,
-           "Euler ODE", r"$N{=}20$ or $50$   ·   $v=v_u+\omega(v_c-v_u)$",
+           "Euler ODE", r"$N{=}20$ or $50$   ·   CFG  $\omega$",
            PURPLE, PURPLE)
     y_bc = eul_y + eul_h / 2
 

@@ -1,36 +1,64 @@
-# GALA: Graph-Aware Latent Alignment for Text-to-Motion with Rectified Flow
+# GALA: Anatomy-Aware Language–Motion Alignment for Efficient Text-to-Motion Rectified Flow
 
 Draft · HumanML3D test, \(n=4544\), 20 replications · Guo / MDM protocol
 
 **Code:** https://github.com/yanghhx/gala-motion
 
-## Abstract
+## Story
 
-Synthesizing 3D human motion from natural language remains difficult: a generated clip must obey skeletal kinematics yet stay faithful to a prompt whose statistics are far from pose space. Pose-level diffusion is expressive but expensive, because it denoises redundant raw trajectories; discrete tokenizers recover fidelity only after learning a codebook; generalist SMPL models, when scored on HumanML3D, further pay a conversion tax between body representations. We present GALA, a graph-aware latent alignment model for text-to-motion. Our key insight is that a topology-aware variational tokenizer already yields a compact, near-lossless motion latent, so generation reduces to learning a straight generative path in that space, explicitly aligned with language. GALA encodes joint trajectories with a channel-wise topology graph, compresses them with a stride-4 VAE, aligns CLIP text and motion latents by contrastive learning, and synthesizes latent clips with a rectified-flow transformer under classifier-free guidance. Extensive experiments on HumanML3D under the standard Guo protocol show that GALA substantially outperforms the Motion Diffusion Model and the recent generalist baseline GENMO in text–motion R-Precision (Top-3 0.768 vs. 0.611 / 0.632) and multimodal distance, while matching the diversity of real motions.
+Skeleton graph → part-aware motion latents ↔ language tokens → kinematic rectified flow.
 
-## Comparison with GENMO Table 4
+1. Anatomy-aware continuous tokenizer (CTR graph + stride-4 VAE).
+2. Token-to-body-part alignment (global InfoNCE + part queries that also condition the DiT).
+3. Kinematic rectified flow (latent velocity matching + decoded velocity / bone / foot losses, 20–50 NFE).
 
-Official test, 4544 clips, batch 32, 20 replications. Literature rows copied from GENMO ICCV 2025 Table 4.
+GENMO is a generalist SMPL baseline, not the comparison target.
 
-| Method | Rep. | R@3 ↑ | FID ↓ | MM Dist ↓ | Diversity → |
+## HumanML3D (filled)
+
+Official test, 4544 clips, batch 32, 20 replications. GALA-20/50 are the public graph + global-align + RF checkpoint.
+
+| Method | NFE | R@3 ↑ | FID ↓ | MM Dist ↓ | Diversity → |
 | --- | --- | --- | --- | --- | --- |
-| Real | HML3D | 0.797 | 0.002 | 2.974 | 9.503 |
-| T2M | HML3D | 0.740 | 1.067 | 3.340 | 9.188 |
-| MDM | HML3D | 0.611 | 0.544 | 5.566 | 9.559 |
-| M2DM | HML3D | 0.763 | 0.352 | 3.134 | 9.926 |
-| EMDM | HML3D | 0.786 | 0.112 | 3.110 | 9.551 |
-| GENMO | SMPL | 0.632 | 0.216 | 3.466 | 11.342 |
-| **GALA 20 steps / CFG 2.5** | HML3D | **0.768 ± 0.002** | 0.330 ± 0.011 | **3.248 ± 0.008** | **9.529 ± 0.085** |
-| **GALA 50 steps / CFG 2.0** | HML3D | 0.749 ± 0.003 | **0.312 ± 0.009** | 3.342 ± 0.009 | 9.365 ± 0.115 |
+| Real | — | 0.797 | 0.002 | 2.974 | 9.503 |
+| MDM | 1000 | 0.611 | 0.544 | 5.566 | 9.559 |
+| MLD | 50 | 0.772 | 0.473 | 3.196 | 9.724 |
+| M2DM | — | 0.763 | 0.352 | 3.134 | 9.926 |
+| T2M-GPT | — | 0.775 | 0.141 | 3.121 | 9.761 |
+| EMDM | 10 | 0.786 | 0.112 | 3.110 | 9.551 |
+| MoMask | — | 0.807 | 0.045 | 2.958 | — |
+| GENMO | — | 0.632 | 0.216 | 3.466 | 11.342 |
+| **GALA 20 / CFG 2.5** | 20 | **0.768 ± 0.002** | 0.330 ± 0.011 | **3.248 ± 0.008** | **9.529 ± 0.085** |
+| **GALA 50 / CFG 2.0** | 50 | 0.749 ± 0.003 | **0.312 ± 0.009** | 3.342 ± 0.009 | 9.365 ± 0.115 |
 
 R@1 / R@2: GALA-20 = 0.447 / 0.654; GALA-50 = 0.428 / 0.632.
 
-**Beat GENMO:** R@3, MM Dist, Diversity (closer to Real). **Do not beat GENMO:** FID. **Not SOTA vs EMDM.**
+VAE recon FID = 0.003 (CTR) vs 0.012 (Conv). Params = 59.9M.
 
-## Sampling scan (val, 1504 clips, 1 seed)
+Efficiency on RTX 4060, batch 1, \(T=196\): GALA-20 = 140 ms (7.1 clips/s); GALA-50 = 340 ms.
 
-VAE recon FID = 0.003. Best generated FID = 50 steps / CFG 2.0 (0.290). CFG = 1.0 hurts both FID and R@3.
+## Tokenizer ablation (HumanML3D val, 1504 clips)
+
+| Tokenizer | Recon FID ↓ | MPJPE ↓ | Bone ↓ | Vel. ↓ |
+| --- | --- | --- | --- | --- |
+| Conv-VAE | 0.012 | 0.105 | 0.061 | 0.039 |
+| ST-GCN-VAE | — | — | — | — |
+| CTR-Graph-VAE | **0.003** | 0.080 | 0.051 | 0.038 |
+
+Graph is not a no-op: FID falls from 0.012 to 0.003.
+
+## Must-run before submission
+
+Do not invent the empty cells. Order:
+
+1. Conv-VAE vs ST-GCN-VAE vs CTR-VAE reconstruction (`scripts/eval_tokenizer.py`). Conv vs CTR is filled; ST-GCN is still training.
+2. Component ablation: Base RF / +Graph / +Global (filled) / +Part / GALA-v2.
+3. `scripts/bench_efficiency.py` latency / FPS on the 4060. **Done** (140 ms / 340 ms).
+4. Part alignment, then kinematic flow, as separate runs.
+5. KIT-ML official 20-rep Guo numbers.
+
+Configs live under `configs/gala_humanml3d_flow_*.yaml` and `configs/gala_kitml_flow_v2.yaml`. Commands are in `paper/gala_t2m_overleaf/gala_t2m_overleaf/README.txt`.
 
 ## Paper files
 
-Overleaf: `paper/gala_t2m_overleaf/`
+Overleaf: `paper/gala_t2m_overleaf/gala_t2m_overleaf/`
