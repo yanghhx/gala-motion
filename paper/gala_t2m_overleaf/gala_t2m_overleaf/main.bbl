@@ -60,26 +60,6 @@ Yaron Lipman, Ricky T~Q Chen, Heli Ben-Hamu, Maximilian Nickel, and Matt Le.
 \newblock Flow matching for generative modeling.
 \newblock 2023.
 
-\bibitem[Chen et~al.(2021)Chen, Zhang, Yuan, Li, Deng, and Hu]{chen2021ctrgcn}
-Yuxin Chen, Ziqi Zhang, Chunfeng Yuan, Bing Li, Ying Deng, and Weiming Hu.
-\newblock Channel-wise topology refinement graph convolution for skeleton-based action recognition.
-\newblock In \emph{ICCV}, 2021.
-
-\bibitem[Kingma and Welling(2014)]{kingma2014vae}
-Diederik~P Kingma and Max Welling.
-\newblock Auto-encoding variational {B}ayes.
-\newblock In \emph{ICLR}, 2014.
-
-\bibitem[Radford et~al.(2021)Radford, Kim, Hallacy, Ramesh, Goh, Agarwal, Sastry, Askell, Mishkin, Clark, et~al.]{radford2021clip}
-Alec Radford, Jong~Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et~al.
-\newblock Learning transferable visual models from natural language supervision.
-\newblock In \emph{ICML}, 2021.
-
-\bibitem[Peebles and Xie(2023)]{peebles2023dit}
-William Peebles and Saining Xie.
-\newblock Scalable diffusion models with transformers.
-\newblock In \emph{ICCV}, 2023.
-
 \bibitem[Ho and Salimans(2022)]{ho2022cfg}
 Jonathan Ho and Tim Salimans.
 \newblock Classifier-free diffusion guidance.
@@ -110,10 +90,20 @@ Wenyang Zhou, Zhiyong Dou, Zeyu Cao, Ziyang Liao, Jingbo Wang, Wenjia Dai, et~al
 \newblock {EMDM}: Efficient motion diffusion model for fast and high-quality motion generation.
 \newblock In \emph{ICLR}, 2024.
 
+\bibitem[Peebles and Xie(2023)]{peebles2023dit}
+William Peebles and Saining Xie.
+\newblock Scalable diffusion models with transformers.
+\newblock In \emph{ICCV}, 2023.
+
 \bibitem[Yan et~al.(2018)Yan, Xiong, and Lin]{yan2018stgcn}
 Sijie Yan, Yuanjun Xiong, and Dahua Lin.
 \newblock Spatial temporal graph convolutional networks for skeleton-based action recognition.
 \newblock In \emph{AAAI}, 2018.
+
+\bibitem[Chen et~al.(2021)Chen, Zhang, Yuan, Li, Deng, and Hu]{chen2021ctrgcn}
+Yuxin Chen, Ziqi Zhang, Chunfeng Yuan, Bing Li, Ying Deng, and Weiming Hu.
+\newblock Channel-wise topology refinement graph convolution for skeleton-based action recognition.
+\newblock In \emph{ICCV}, 2021.
 
 \bibitem[Zou et~al.(2024)]{zou2024parco}
 Qiran Zou et~al.
@@ -129,5 +119,15 @@ Chongyang Zhong, Lei Hu, Ziwei Zhang, and Shihong Xia.
 Matthew Loper, Naureen Mahmood, Javier Romero, Gerard Pons-Moll, and Michael~J Black.
 \newblock {SMPL}: A skinned multi-person linear model.
 \newblock \emph{ACM TOG}, 34\penalty0 (6), 2015.
+
+\bibitem[Radford et~al.(2021)Radford, Kim, Hallacy, Ramesh, Goh, Agarwal, Sastry, Askell, Mishkin, Clark, et~al.]{radford2021clip}
+Alec Radford, Jong~Wook Kim, Chris Hallacy, Aditya Ramesh, Gabriel Goh, Sandhini Agarwal, Girish Sastry, Amanda Askell, Pamela Mishkin, Jack Clark, et~al.
+\newblock Learning transferable visual models from natural language supervision.
+\newblock In \emph{ICML}, 2021.
+
+\bibitem[Kingma and Welling(2014)]{kingma2014vae}
+Diederik~P Kingma and Max Welling.
+\newblock Auto-encoding variational {B}ayes.
+\newblock In \emph{ICLR}, 2014.
 
 \end{thebibliography}

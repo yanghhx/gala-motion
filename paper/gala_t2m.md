@@ -42,16 +42,16 @@ Efficiency on RTX 4060, batch 1, \(T=196\): GALA-20 = 140 ms (7.1 clips/s); GALA
 | Tokenizer | Recon FID ↓ | MPJPE ↓ | Bone ↓ | Vel. ↓ |
 | --- | --- | --- | --- | --- |
 | Conv-VAE | 0.012 | 0.105 | 0.061 | 0.039 |
-| ST-GCN-VAE | — | — | — | — |
-| CTR-Graph-VAE | **0.003** | 0.080 | 0.051 | 0.038 |
+| ST-GCN-VAE | 0.003 | 0.088 | 0.050 | 0.038 |
+| CTR-Graph-VAE | **0.003** | **0.080** | 0.051 | 0.038 |
 
-Graph is not a no-op: FID falls from 0.012 to 0.003.
+Graph is not a no-op: FID falls from 0.012 to 0.003. Static ST-GCN already matches CTR recon FID; CTR further cuts MPJPE (0.088 → 0.080).
 
 ## Must-run before submission
 
 Do not invent the empty cells. Order:
 
-1. Conv-VAE vs ST-GCN-VAE vs CTR-VAE reconstruction (`scripts/eval_tokenizer.py`). Conv vs CTR is filled; ST-GCN is still training.
+1. Conv-VAE vs ST-GCN-VAE vs CTR-VAE reconstruction (`scripts/eval_tokenizer.py`). **Done.**
 2. Component ablation: Base RF / +Graph / +Global (filled) / +Part / GALA-v2.
 3. `scripts/bench_efficiency.py` latency / FPS on the 4060. **Done** (140 ms / 340 ms).
 4. Part alignment, then kinematic flow, as separate runs.

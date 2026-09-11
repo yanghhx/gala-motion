@@ -40,7 +40,7 @@ Reported operating points on HumanML3D test (\(n=4544\), 20 replications):
 | 20 steps, CFG 2.5 | 20 | 140 ms | 0.768 | 0.330 | 3.248 | 9.529 |
 | 50 steps, CFG 2.0 | 50 | 340 ms | 0.749 | 0.312 | 3.342 | 9.365 |
 
-Tokenizer reconstruction FID on val: Conv-VAE 0.012 vs CTR-Graph-VAE 0.003.
+Tokenizer reconstruction on val: Conv-VAE FID 0.012 / MPJPE 0.105; ST-GCN-VAE 0.003 / 0.088; CTR-Graph-VAE 0.003 / 0.080.
 
 GALA-v2 (part alignment + kinematic flow) configs: `configs/gala_humanml3d_flow_v2.yaml`. Tokenizer / efficiency scripts: `scripts/eval_tokenizer.py`, `scripts/bench_efficiency.py`.
 

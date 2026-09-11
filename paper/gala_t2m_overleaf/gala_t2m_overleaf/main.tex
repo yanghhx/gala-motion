@@ -30,8 +30,10 @@
 \begin{abstract}
 \vspace{-0.3em}
 Text-to-motion generation must couple language semantics with skeletal kinematics, yet most latent generators either pool a single CLIP vector against a single motion code or denoise raw poses at a high function-evaluation cost.
-We present GALA, a topology-aware continuous generator whose three stages are causally linked rather than stacked: a skeleton-graph VAE yields part-structured latents; language tokens are aligned to body parts rather than to a global pool; a rectified-flow DiT then transports noise to that latent with motion-space kinematic constraints and a 20--50 step Euler ODE.
-On the official HumanML3D test set, the graph-aligned flow already reaches Top-3 R-Precision $0.768$ at 20 NFEs and FID $0.312$ at 50 NFEs, beating MDM on every reported metric and matching real-motion diversity, while remaining a compact ${\sim}60$M model trained on one RTX 4060 (8\,GB).
+Existing latent T2M methods lack an explicit structural bridge between skeletal topology, fine-grained language semantics, and the generative trajectory.
+GALA establishes that bridge: a skeleton-graph VAE exposes five body-part latents; learnable anatomical queries align CLIP tokens to those parts; a rectified-flow DiT then transports noise under motion-space kinematic constraints, sampled with a 20--50 step Euler ODE.
+On official HumanML3D, the current public checkpoint---graph tokenizer, global InfoNCE, no part queries and no kinematic loss---reaches Top-3 R-Precision $0.768$ at 20 NFEs and FID $0.312$ at 50 NFEs, beating MDM on every reported metric on one RTX 4060 (8\,GB).
+We isolate part alignment and kinematic decoding as separate ablations rather than attributing these headline numbers to the full system.
 The remaining gap to masked-token SOTA is isolated to the generator, not the tokenizer (reconstruction FID $0.003$).
 \vspace{-0.4em}
 \end{abstract}
@@ -44,8 +46,8 @@ Diffusion on raw $263$-D poses~\cite{tevet2023mdm,zhang2022motiondiffuse} is fai
 Rectified flow~\cite{liu2023rectified,lipman2023flow} replaces that chain with a straight ODE, which is the right inductive bias when the budget is a single 8\,GB GPU.
 
 A topology-aware variational tokenizer already yields a compact, near-lossless motion latent, so generation reduces to learning a \emph{straight} path in that space that is explicitly aligned with language.
-The risk of such a pipeline is that it reads as a combination of CTR-GCN~\cite{chen2021ctrgcn}, a VAE~\cite{kingma2014vae}, CLIP~\cite{radford2021clip}, and a DiT~\cite{peebles2023dit}.
-GALA links the three stages so they are not interchangeable: the graph tokenizer exists to expose anatomical parts; part-level alignment exists so language can address those parts; kinematic flow exists because reconstruction FID shows that fidelity is lost in the ODE, not in the VAE---skeleton graph $\to$ part latents $\leftrightarrow$ language tokens $\to$ kinematic rectified flow.
+Existing latent T2M methods lack an explicit structural bridge between skeletal topology, fine-grained language semantics, and the generative trajectory.
+GALA establishes this bridge by linking three stages that are not interchangeable: the graph tokenizer exists to expose anatomical parts; part-level alignment exists so language can address those parts; kinematic flow exists because reconstruction FID shows that fidelity is lost in the ODE, not in the VAE---skeleton graph $\to$ part latents $\leftrightarrow$ language tokens $\to$ kinematic rectified flow.
 
 \paragraph{Contributions.}
 \begin{enumerate}\itemsep2pt
@@ -79,7 +81,7 @@ Two CTR blocks mix a static anatomical adjacency with a sample-dependent attenti
 Joints are pooled into $P{=}5$ parts
 $\mathcal{P}=\{\text{torso},\,\text{L-arm},\,\text{R-arm},\,\text{L-leg},\,\text{R-leg}\}$,
 giving a global frame feature $z_g$ and part features $z_p\in\mathbb{R}^{P\times d}$.
-A 1-D conv VAE with stride 4 emits $\mu,\log\sigma^2\in\mathbb{R}^{L\times 256}$, $L=\lceil T/4\rceil$.
+A 1-D conv VAE~\cite{kingma2014vae} with stride 4 emits $\mu,\log\sigma^2\in\mathbb{R}^{L\times 256}$, $L=\lceil T/4\rceil$.
 Stage-1 training is
 \begin{equation}
 \mathcal{L}_{\mathrm{VAE}}
@@ -139,9 +141,9 @@ with $N\in\{10,20,50\}$ and $\omega\in\{2.0,2.5\}$.
 \centering
 \includegraphics[width=\textwidth]{fig_architecture.pdf}
 \caption{GALA, three causally linked stages.
-\textbf{(a)}~A skeleton-graph VAE emits a 5\,Hz latent and five body-part codes.
-\textbf{(b)}~CLIP tokens are aligned globally and to parts; part queries condition the DiT.
-\textbf{(c)}~Kinematic rectified flow is sampled with a 20- or 50-step Euler ODE.
+\textbf{(a)}~A skeleton-graph VAE emits a 5\,Hz latent and five part codes (torso, L-arm, R-arm, L-leg, R-leg).
+\textbf{(b)}~Learnable anatomical queries attend to CLIP tokens and align to the matching part latents; $\tilde c_p$ condition the DiT.
+\textbf{(c)}~Inference is a 20- or 50-step Euler ODE. A training-only branch decodes $\hat z_1$ and penalizes velocity, bone length, and foot contact.
 Code: \url{https://github.com/yanghhx/gala-motion}.}
 \label{fig:arch}
 \end{figure*}
@@ -270,8 +272,9 @@ GALA-v2 & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & -- & -- \\
 \subsection{Tokenizer: graph vs.\ conv}
 
 A reconstruction FID of $0.003$ is not, by itself, evidence that the graph is necessary.
-Table~\ref{tab:tok} compares a graph-free conv VAE, an ST-GCN VAE, and the CTR VAE under the same stride and optimizer budget.
-The conv control is worse on FID ($0.012$ vs.\ $0.003$) and MPJPE ($0.105$ vs.\ $0.080$); the graph is therefore not a no-op.
+Table~\ref{tab:tok} compares a graph-free conv VAE, an ST-GCN VAE (static adjacency), and the CTR VAE under the same stride and optimizer budget.
+The conv control is worse on FID ($0.012$ vs.\ $0.003$) and MPJPE ($0.105$ vs.\ $0.080$); a static ST-GCN already matches CTR reconstruction FID, while CTR further cuts MPJPE ($0.088{\to}0.080$).
+The graph is therefore not a no-op; the adaptive topology is a smaller but measurable joint-error gain.
 
 \begin{table}[t]
 \centering
@@ -284,7 +287,7 @@ The conv control is worse on FID ($0.012$ vs.\ $0.003$) and MPJPE ($0.105$ vs.\ 
 Tokenizer & Recon FID $\downarrow$ & MPJPE $\downarrow$ & Bone $\downarrow$ & Vel.\ $\downarrow$ \\
 \midrule
 Conv-VAE & $0.012$ & $0.105$ & $0.061$ & $0.039$ \\
-ST-GCN-VAE & -- & -- & -- & -- \\
+ST-GCN-VAE & $0.003$ & $0.088$ & $0.050$ & $0.038$ \\
 CTR-Graph-VAE & $0.003$ & $0.080$ & $0.051$ & $0.038$ \\
 \bottomrule
 \end{tabular}
@@ -301,6 +304,7 @@ CTR-Graph-VAE & $0.003$ & $0.080$ & $0.051$ & $0.038$ \\
 
 A $3{\times}4$ val scan on the frozen public checkpoint (Table~\ref{tab:sweep}) shows that CFG $=1.0$ collapses both FID and R@3, while 20 steps / CFG $2.5$ maximizes R@3 and 50 steps / CFG $2.0$ minimizes FID (val $0.290$), transferring to test as $0.312$ / $0.749$.
 On one RTX 4060, GALA-20 produces a $T{=}196$ clip in $140$\,ms ($7.1$ clips/s) and GALA-50 in $340$\,ms; a $9.8$\,s motion is therefore generated far faster than real time.
+Table~\ref{tab:eff} times only GALA on this GPU; MDM / EMDM latency stays blank until those codebases are re-run at batch 1, $T{=}196$, because NFE is not wall-clock time.
 
 \begin{table}[t]
 \centering
