@@ -39,9 +39,14 @@ class PartLanguageAlignment(nn.Module):
     of that body part (torso, arms, legs).
     """
 
-    def __init__(self, text_dim: int, motion_dim: int, embed_dim: int, num_parts: int = 5):
+    def __init__(
+        self, text_dim: int, motion_dim: int, embed_dim: int, num_parts: int = 5,
+        diversity_weight: float = 0.05, query_diversity_weight: float = 0.01,
+    ):
         super().__init__()
         self.num_parts = num_parts
+        self.diversity_weight = diversity_weight
+        self.query_diversity_weight = query_diversity_weight
         self.part_queries = nn.Parameter(torch.randn(num_parts, text_dim) * 0.02)
         self.query_proj = nn.Linear(text_dim, embed_dim)
         self.key_proj = nn.Linear(text_dim, embed_dim)
@@ -51,7 +56,9 @@ class PartLanguageAlignment(nn.Module):
         self.lang_proj = nn.Sequential(nn.LayerNorm(text_dim), nn.Linear(text_dim, embed_dim))
         self.logit_scale = nn.Parameter(torch.tensor(1 / 0.07).log())
 
-    def part_text(self, text: torch.Tensor, text_mask: torch.Tensor) -> torch.Tensor:
+    def part_text(
+        self, text: torch.Tensor, text_mask: torch.Tensor, return_attention: bool = False,
+    ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         batch = text.shape[0]
         query = self.query_proj(self.part_queries).unsqueeze(0).expand(batch, -1, -1)
         key = self.key_proj(text)
@@ -59,15 +66,30 @@ class PartLanguageAlignment(nn.Module):
         logits = torch.matmul(query, key.transpose(-1, -2)) * (query.shape[-1] ** -0.5)
         logits = logits.masked_fill(~text_mask[:, None], torch.finfo(logits.dtype).min)
         attn = logits.softmax(dim=-1)
-        return self.part_out(torch.matmul(attn, value))
+        part_tokens = self.part_out(torch.matmul(attn, value))
+        return (part_tokens, attn) if return_attention else part_tokens
 
     def forward(self, part_motion: torch.Tensor, text: torch.Tensor, text_mask: torch.Tensor):
-        part_tokens = self.part_text(text, text_mask)
+        part_tokens, attention = self.part_text(text, text_mask, return_attention=True)
         motion_emb = F.normalize(self.motion_proj(part_motion), dim=-1)
         lang_emb = F.normalize(self.lang_proj(part_tokens), dim=-1)
-        losses = [
-            _symmetric_nce(motion_emb[:, index], lang_emb[:, index], self.logit_scale)
-            for index in range(part_motion.shape[1])
-        ]
-        return torch.stack(losses).mean(), part_tokens
-
+        # Flatten B x P so both other examples and other anatomical parts are
+        # negatives. The positive at flat index b*P+p keeps the fixed mapping.
+        contrast = _symmetric_nce(
+            motion_emb.reshape(-1, motion_emb.shape[-1]),
+            lang_emb.reshape(-1, lang_emb.shape[-1]),
+            self.logit_scale,
+        )
+        normalized_attention = F.normalize(attention, dim=-1)
+        similarity = normalized_attention @ normalized_attention.transpose(-1, -2)
+        off_diagonal = ~torch.eye(self.num_parts, device=similarity.device, dtype=torch.bool)
+        attention_diversity = similarity[:, off_diagonal].mean()
+        normalized_queries = F.normalize(self.part_queries, dim=-1)
+        query_similarity = normalized_queries @ normalized_queries.T
+        query_diversity = query_similarity[off_diagonal].square().mean()
+        loss = (
+            contrast
+            + self.diversity_weight * attention_diversity
+            + self.query_diversity_weight * query_diversity
+        )
+        return loss, part_tokens

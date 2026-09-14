@@ -32,6 +32,7 @@ HML22_PARTS = (
     (1, 2, 3),                 # left leg
     (4, 5, 6),                 # right leg
 )
+PART_NAMES = ("torso", "left_arm", "right_arm", "left_leg", "right_leg")
 KIT21_PARTS = (
     (0, 1, 2, 3, 4),
     (5, 6, 7),
@@ -128,4 +129,3 @@ class SkeletonGraphEncoder(nn.Module):
             x = block(x, self.adjacency)
         x = self.output_norm(x)
         return x.mean(dim=2), x
-

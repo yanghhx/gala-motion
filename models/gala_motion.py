@@ -9,7 +9,7 @@ from torch import nn
 from diffusion.rectified_flow import RectifiedFlowDiT
 from models.alignment import LanguageMotionAlignment, PartLanguageAlignment, masked_mean
 from models.motion_vae import TopologyMotionVAE
-from models.skeleton_graph import body_parts, pool_body_parts, skeleton_edges, SkeletonGraphEncoder
+from models.skeleton_graph import PART_NAMES, body_parts, pool_body_parts, skeleton_edges, SkeletonGraphEncoder
 from models.text_encoder import TokenTextEncoder
 
 
@@ -39,6 +39,8 @@ class GALAMotionConfig:
     lambda_kl: float = 1.0e-4
     lambda_alignment: float = 0.25
     lambda_part: float = 0.25
+    part_diversity_weight: float = 0.05
+    query_diversity_weight: float = 0.01
     lambda_bone: float = 0.1
     lambda_velocity: float = 0.1
     lambda_kin_velocity: float = 0.05
@@ -57,6 +59,11 @@ class GALAMotion(nn.Module):
         super().__init__()
         self.cfg = cfg
         self.parts = body_parts(cfg.num_joints)
+        if cfg.num_parts != len(PART_NAMES) or len(self.parts) != len(PART_NAMES):
+            raise ValueError(
+                f"Anatomical query order is fixed to {PART_NAMES}; "
+                f"got num_parts={cfg.num_parts} and {len(self.parts)} graph parts"
+            )
         graph_kind = "none" if not cfg.use_graph else cfg.graph_type
         self.graph = SkeletonGraphEncoder(
             cfg.num_joints, cfg.latent_dim, cfg.graph_layers, cfg.num_heads,
@@ -70,6 +77,8 @@ class GALAMotion(nn.Module):
         self.alignment = LanguageMotionAlignment(cfg.text_dim, cfg.latent_dim, cfg.latent_dim)
         self.part_alignment = PartLanguageAlignment(
             cfg.text_dim, cfg.latent_dim, cfg.latent_dim, num_parts=cfg.num_parts,
+            diversity_weight=cfg.part_diversity_weight,
+            query_diversity_weight=cfg.query_diversity_weight,
         )
         self.flow = RectifiedFlowDiT(
             cfg.latent_dim, cfg.model_dim, cfg.text_dim, cfg.num_heads, cfg.dit_layers,

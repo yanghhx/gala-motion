@@ -32,6 +32,19 @@ def encode_batch_text(batch, device, clip_encoder):
     return batch["text"].to(device, non_blocking=True), batch["text_mask"].to(device, non_blocking=True)
 
 
+@torch.no_grad()
+def initialize_anatomical_queries(model, clip_encoder, device):
+    """Seed the five fixed query slots from their CLIP anatomical names."""
+    labels = ["torso", "left arm", "right arm", "left leg", "right leg"]
+    hidden, mask = clip_encoder.encode(labels, device)
+    weight = mask.to(hidden.dtype).unsqueeze(-1)
+    pooled = (hidden * weight).sum(1) / weight.sum(1).clamp_min(1)
+    # Match the original small random-query scale while retaining CLIP direction.
+    pooled = torch.nn.functional.layer_norm(pooled, (pooled.shape[-1],)) * 0.02
+    raw = model.module if hasattr(model, "module") else model
+    raw.part_alignment.part_queries.copy_(pooled)
+
+
 def distributed_setup():
     world_size = int(os.environ.get("WORLD_SIZE", "1"))
     distributed = world_size > 1
@@ -62,6 +75,33 @@ def _build_loader(data_cfg, split, train_cfg, distributed, seed, shuffle, mode, 
         drop_last=drop_last,
     )
     return dataset, loader, sampler
+
+
+def _prefer_global_if_part_regressed(init_path, cfg, local_rank):
+    """Kinematic v2 should not inherit a +Part checkpoint that lost to +Global."""
+    path = os.path.abspath(init_path)
+    if not getattr(cfg, "use_kinematic_flow", False):
+        return init_path
+    if "flow_part" not in path.replace("\\", "/"):
+        return init_path
+    try:
+        state = torch.load(path, map_location="cpu", weights_only=False)
+        part_fid = float(state.get("metric", 1e9)) if isinstance(state, dict) else 1e9
+    except Exception:
+        return init_path
+    # +Global val FID is 0.335 at 20 steps / CFG 2.5 on 1504 clips.
+    # +Part reports n=320; treat a clear gap as a regression, not noise.
+    threshold = 0.38
+    fallback = os.path.join(os.path.dirname(os.path.dirname(path)), "gala_humanml3d_flow", "best.pt")
+    if part_fid <= threshold or not os.path.isfile(fallback):
+        return init_path
+    if local_rank == 0:
+        print(
+            f"+Part val FID {part_fid:.4f} > {threshold:.2f}; "
+            f"init kinematic flow from {fallback} instead of {init_path}",
+            flush=True,
+        )
+    return fallback
 
 
 @torch.no_grad()
@@ -149,13 +189,20 @@ def main():
     start_epoch = global_step = optimizer_step = 0
     raw_model = model.module if hasattr(model, "module") else model
     if args.init_from:
-        state = torch.load(args.init_from, map_location=device, weights_only=False)
+        init_path = _prefer_global_if_part_regressed(args.init_from, cfg, local_rank)
+        state = torch.load(init_path, map_location=device, weights_only=False)
         raw = state["model"] if isinstance(state, dict) and "model" in state else state
         raw_model.load_state_dict(raw, strict=False)
         raw_model.cfg.train_stage = cfg.train_stage
         raw_model.apply_train_stage()
         if local_rank == 0:
-            print(f"initialized weights from {args.init_from} stage={cfg.train_stage}", flush=True)
+            print(f"initialized weights from {init_path} stage={cfg.train_stage}", flush=True)
+    if train_cfg.get("init_part_queries_from_clip", False):
+        if clip_encoder is None or not cfg.use_part_align:
+            raise ValueError("init_part_queries_from_clip requires CLIP and use_part_align=true")
+        initialize_anatomical_queries(model, clip_encoder, device)
+        if local_rank == 0:
+            print("initialized fixed anatomical queries from CLIP labels", flush=True)
     ema_decay = float(train_cfg.get("ema_decay") or 0)
     ema = ModelEMA(raw_model, ema_decay) if ema_decay > 0 and cfg.train_stage != "vae" else None
     if args.resume:

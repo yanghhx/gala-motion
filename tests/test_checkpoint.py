@@ -1,6 +1,9 @@
+from types import SimpleNamespace
+
 import torch
 
 from trainers.checkpoint import CheckpointManager
+from trainers.train import _prefer_global_if_part_regressed
 
 
 def test_checkpoint_roundtrip(tmp_path):
@@ -14,3 +17,18 @@ def test_checkpoint_roundtrip(tmp_path):
     assert state["epoch"] == 4 and state["step"] == 17
     assert torch.count_nonzero(model.weight) > 0
     assert (tmp_path / "best.pt").exists()
+
+
+def test_v2_init_falls_back_when_part_fid_regresses(tmp_path):
+    part_dir = tmp_path / "gala_humanml3d_flow_part"
+    global_dir = tmp_path / "gala_humanml3d_flow"
+    part_dir.mkdir()
+    global_dir.mkdir()
+    torch.save({"metric": 0.433, "model": {}}, part_dir / "best.pt")
+    torch.save({"metric": 0.330, "model": {}}, global_dir / "best.pt")
+    cfg = SimpleNamespace(use_kinematic_flow=True)
+    chosen = _prefer_global_if_part_regressed(str(part_dir / "best.pt"), cfg, local_rank=1)
+    assert chosen == str(global_dir / "best.pt")
+    cfg.use_kinematic_flow = False
+    chosen = _prefer_global_if_part_regressed(str(part_dir / "best.pt"), cfg, local_rank=1)
+    assert chosen == str(part_dir / "best.pt")

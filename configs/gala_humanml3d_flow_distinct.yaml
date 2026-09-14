@@ -1,0 +1,50 @@
+experiment: gala_motion_humanml3d_distinct
+seed: 3407
+dataset:
+  root: data/HumanML3D
+  split: train
+  motion_dim: 263
+  num_joints: 22
+  max_frames: 196
+model:
+  latent_dim: 256
+  model_dim: 512
+  text_dim: 512
+  num_heads: 8
+  graph_layers: 2
+  dit_layers: 8
+  text_layers: 0
+  text_encoder_type: clip
+  train_stage: flow
+  stride: 4
+  graph_type: ctr
+  use_graph: true
+  use_alignment: true
+  use_part_align: true
+  use_kinematic_flow: true
+  cond_drop_prob: 0.1
+  lambda_alignment: 0.25
+  lambda_part: 0.25
+  part_diversity_weight: 0.05
+  query_diversity_weight: 0.01
+  lambda_kin_velocity: 0.05
+  lambda_kin_bone: 0.05
+  lambda_kin_foot: 0.05
+training:
+  batch_size_per_gpu: 4
+  grad_accum: 4
+  epochs: 80
+  max_steps: 100000
+  eval_every_steps: 5000
+  eval_max_samples: 320
+  eval_steps: 20
+  eval_guidance: 2.5
+  ema_decay: 0.9999
+  early_stop_fid_patience: 3
+  learning_rate: 0.0002
+  weight_decay: 0.01
+  num_workers: 2
+  precision: bf16
+  gradient_clip: 1.0
+  checkpoint_dir: checkpoints/gala_humanml3d_flow_distinct
+  log_dir: runs/gala_humanml3d_flow_distinct

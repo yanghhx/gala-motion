@@ -8,8 +8,9 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-ROOT = Path("/home/qinyang/桌面/project")
-OUT = Path("/home/qinyang/桌面/project/paper/gala_t2m_overleaf/gala_t2m_overleaf/figures")
+PACK = Path(__file__).resolve().parent
+ROOT = PACK.parents[2]
+OUT = PACK / "figures"
 OUT.mkdir(parents=True, exist_ok=True)
 
 INK = "#1F2937"
@@ -36,6 +37,7 @@ def style():
         "savefig.bbox": "tight",
         "savefig.pad_inches": 0.06,
         "pdf.fonttype": 42,
+        "ps.fonttype": 42,
     })
 
 
@@ -107,8 +109,8 @@ def fig_sweep():
 
 def fig_compare():
     names = ["MDM", "MLD", "M2DM", "GALA\n20", "GALA\n50", "T2M-GPT", "EMDM", "MoMask"]
-    r3 = [0.611, 0.772, 0.763, 0.768, 0.749, 0.775, 0.786, 0.807]
-    fid = [0.544, 0.473, 0.352, 0.330, 0.312, 0.141, 0.112, 0.045]
+    r3 = [0.611, 0.772, 0.763, 0.806, 0.793, 0.775, 0.786, 0.807]
+    fid = [0.544, 0.473, 0.352, 0.272, 0.224, 0.141, 0.112, 0.045]
     colors = [GRAY, GRAY, GRAY, TEAL, TEAL, GRAY, GRAY, GRAY]
 
     fig, axes = plt.subplots(1, 2, figsize=(7.2, 2.7))
@@ -132,13 +134,13 @@ def fig_compare():
 
 
 def fig_recon_gap():
-    labels = ["VAE recon\n(val)", "GALA 50\n(test)", "EMDM\n(test)", "Real"]
-    fid = [0.003, 0.312, 0.112, 0.002]
-    colors = [BLUE, TEAL, GRAY, GRAY]
+    labels = ["Conv-VAE\nrecon", "CTR-VAE\nrecon", "GALA-50\ngen.", "Real"]
+    fid = [0.012, 0.003, 0.224, 0.002]
+    colors = [ORANGE, BLUE, TEAL, GRAY]
     fig, ax = plt.subplots(figsize=(4.4, 2.55))
     bars = ax.bar(labels, fid, color=colors, edgecolor=INK, lw=0.5)
     ax.set_ylabel("FID")
-    ax.set_title("Tokenizer is not the FID bottleneck")
+    ax.set_title("Graph cuts recon FID; generation is the gap")
     ax.set_ylim(0, 0.40)
     for bar, v in zip(bars, fid):
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.008,

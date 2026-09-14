@@ -12,8 +12,13 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, FancyArrowPatch, FancyBboxPatch
 
-ROOT = Path("/home/qinyang/桌面/project")
-OUT = ROOT / "paper" / "gala_t2m_overleaf" / "gala_t2m_overleaf" / "figures"
+plt.rcParams.update({
+    "font.family": "DejaVu Sans",
+    "pdf.fonttype": 42,
+    "ps.fonttype": 42,
+})
+
+OUT = Path(__file__).resolve().parent / "figures"
 
 INK = "#1F2933"
 MUTE = "#5B6770"

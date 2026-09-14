@@ -1,6 +1,8 @@
 import torch
+import pytest
 
 from models.gala_motion import GALAMotion, GALAMotionConfig
+from models.skeleton_graph import HML22_PARTS, KIT21_PARTS, PART_NAMES
 
 
 def tiny_model():
@@ -16,6 +18,37 @@ def tiny_model():
         max_frames=40,
     )
     return GALAMotion(cfg)
+
+
+def test_anatomical_query_order_is_fixed():
+    assert PART_NAMES == ("torso", "left_arm", "right_arm", "left_leg", "right_leg")
+    assert len(HML22_PARTS) == len(KIT21_PARTS) == len(PART_NAMES) == 5
+    with pytest.raises(ValueError, match="query order is fixed"):
+        GALAMotion(GALAMotionConfig(num_parts=4))
+
+
+def test_part_attention_is_normalized_and_ordered():
+    model = tiny_model()
+    text = torch.randn(2, 7, 48)
+    mask = torch.tensor([[1, 1, 1, 1, 1, 0, 0], [1, 1, 1, 1, 1, 1, 1]], dtype=torch.bool)
+    tokens, attention = model.part_alignment.part_text(text, mask, return_attention=True)
+    assert tokens.shape == (2, len(PART_NAMES), 48)
+    assert attention.shape == (2, len(PART_NAMES), 7)
+    torch.testing.assert_close(attention.sum(-1), torch.ones(2, len(PART_NAMES)))
+    assert torch.count_nonzero(attention[0, :, 5:]) == 0
+
+
+def test_joint_part_contrast_penalizes_slot_collapse():
+    model = tiny_model()
+    alignment = model.part_alignment
+    text = torch.randn(3, 8, 48)
+    mask = torch.ones(3, 8, dtype=torch.bool)
+    distinct_motion = torch.randn(3, len(PART_NAMES), 64)
+    loss, _ = alignment(distinct_motion, text, mask)
+    loss.backward()
+    assert torch.isfinite(loss)
+    assert alignment.part_queries.grad is not None
+    assert torch.count_nonzero(alignment.part_queries.grad) > 0
 
 
 def test_forward_losses_are_finite_and_differentiable():
@@ -168,4 +201,3 @@ def test_ema_apply_restore_roundtrip():
     for name, parameter in model.named_parameters():
         if name in after:
             torch.testing.assert_close(parameter, after[name])
-

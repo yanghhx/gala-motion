@@ -37,12 +37,22 @@ Reported operating points on HumanML3D test (\(n=4544\), 20 replications):
 
 | Setting | NFE | Latency (4060, \(T=196\)) | R@3 | FID | MM Dist | Diversity |
 | --- | --- | --- | --- | --- | --- | --- |
-| 20 steps, CFG 2.5 | 20 | 140 ms | 0.768 | 0.330 | 3.248 | 9.529 |
-| 50 steps, CFG 2.0 | 50 | 340 ms | 0.749 | 0.312 | 3.342 | 9.365 |
+| 20 steps, CFG 2.5 | 20 | 140 ms | 0.806 | 0.272 | 3.061 | 9.692 |
+| 50 steps, CFG 2.0 | 50 | 340 ms | 0.793 | 0.224 | 3.107 | 9.643 |
 
-Tokenizer reconstruction on val: Conv-VAE FID 0.012 / MPJPE 0.105; ST-GCN-VAE 0.003 / 0.088; CTR-Graph-VAE 0.003 / 0.080.
+Tokenizer reconstruction on val (1504 clips): Conv-VAE FID 0.012 / MPJPE 0.105 / R@3 0.755; ST-GCN-VAE 0.003 / 0.088 / 0.748; CTR-Graph-VAE 0.003 / 0.080 / 0.750.
 
-GALA-v2 (part alignment + kinematic flow) configs: `configs/gala_humanml3d_flow_v2.yaml`. Tokenizer / efficiency scripts: `scripts/eval_tokenizer.py`, `scripts/bench_efficiency.py`.
+The final GALA rows use the non-collapsed part-query checkpoints and official 20-replication evaluation. Mean off-diagonal attention-profile cosine falls from 0.9988 to 0.3474 after query-diversity repair. Relevant configs are `configs/gala_humanml3d_flow_part_distinct.yaml` and `configs/gala_humanml3d_flow_distinct.yaml`; evaluation artifacts are under `outputs/`.
+
+Tokenizer / efficiency scripts: `scripts/eval_tokenizer.py`, `scripts/bench_efficiency.py`. GALA-10 latency is 70 ms (14.4 clips/s) on the same RTX 4060 protocol.
+
+To reproduce every GALA-owned result in Tables 1--5 from the saved checkpoints (official test protocol uses 20 replications):
+
+```bash
+PYTHON_BIN=python bash scripts/reproduce_paper_tables.sh
+```
+
+The command writes a fresh, table-indexed copy of all metrics to `outputs/reproduction/`. Dataset and evaluator assets are intentionally not bundled; see the setup section above.
 
 ## World model (GALA-WM)
 
