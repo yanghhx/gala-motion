@@ -73,7 +73,7 @@ class PartLanguageAlignment(nn.Module):
         if use_anatomical_anchor:
             self.anchor_proj = nn.Linear(text_dim, text_dim)
             self.anchor_to_embed = nn.Linear(text_dim, embed_dim)
-            self.anchor_gate = nn.Parameter(torch.zeros(num_parts))
+            self.anchor_gate = nn.Parameter(torch.full((num_parts,), -3.0))
             self.register_buffer("anchor_embeddings", torch.zeros(num_parts, text_dim))
 
     def set_anchor_embeddings(self, embeddings: torch.Tensor):
