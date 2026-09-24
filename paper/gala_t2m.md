@@ -100,8 +100,10 @@ Skating reduced 15% (decay config) with FID +0.049, R@3 -0.008. Claim: improves 
 | Method | FID ↓ | R@3 ↑ | MM Dist ↓ | Diversity → |
 | --- | --- | --- | --- | --- |
 | Base GALA | 0.400±0.020 | 0.818±0.006 | 2.530 | 11.33 |
-| +Anatomy | *pending* | *pending* | *pending* | *pending* |
-| +Skate | *pending* | *pending* | *pending* | *pending* |
+| +Anatomy | 0.407±0.020 | 0.816±0.006 | 2.534 | 11.15 |
+| +Skate | 0.400±0.020 | 0.812±0.006 | 2.544 | 11.26 |
+
+On KIT-ML, the anatomical anchor adds near-zero quality cost (FID +0.007, R@3 -0.002), consistent with HumanML3D. The skating loss has less effect on KIT-ML because KIT-ML has a much lower contact ratio (0.024 vs 0.86 on HumanML3D), so fewer contact frames are available to penalize.
 
 ---
 
