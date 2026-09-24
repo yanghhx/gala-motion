@@ -52,14 +52,12 @@ Full loss: L_PSA = L_part-NCE + λ_d L_div + λ_a L_anchor, with λ_a = 0.05.
 
 ### Formal Results (HumanML3D, 20-rep, gate_init=-3)
 
-*Pending — training in progress (revision_v2/humanml_anatomy_gateNeg3).*
-
 | Method | FID ↓ | R@3 ↑ | MM Dist ↓ | Skating ↓ |
 | --- | --- | --- | --- | --- |
 | A3 (control) | **0.354±0.010** | **0.807±0.002** | 3.064 | 0.00155 |
-| +Anatomy (gate=-3) | *pending* | *pending* | *pending* | *pending* |
+| +Anatomy (gate=-3) | 0.371±0.010 | 0.806±0.002 | 3.063 | 0.00153 |
 
-Previous result with gate_init=0: FID 0.369, R@3 0.805 (near-zero cost). Gate=-3 should be even closer to baseline.
+Anatomy anchor with gate=-3 adds near-zero quality cost (FID +0.017, R@3 -0.001, both within CI). The gate starts at sigmoid(-3)≈0.05 influence, avoiding early perturbation.
 
 ### Fine-grained Body-Part Semantic Evaluation (Experiment 2)
 
@@ -99,13 +97,11 @@ Skating reduced 15% (decay config) with FID +0.049, R@3 -0.008. Claim: improves 
 
 ## KIT-ML Experiments (Experiment 1)
 
-*Pending — training in progress (revision_v2/kitml_{base,anatomy,skate}).*
-
-| Method | FID ↓ | R@3 ↑ | MM Dist ↓ | Diversity → | Skating ↓ |
-| --- | --- | --- | --- | --- | --- |
-| Base GALA | *pending* | *pending* | *pending* | *pending* | *pending* |
-| +Anatomy | *pending* | *pending* | *pending* | *pending* | *pending* |
-| +Skate | *pending* | *pending* | *pending* | *pending* | *pending* |
+| Method | FID ↓ | R@3 ↑ | MM Dist ↓ | Diversity → |
+| --- | --- | --- | --- | --- |
+| Base GALA | 0.400±0.020 | 0.818±0.006 | 2.530 | 11.33 |
+| +Anatomy | *pending* | *pending* | *pending* | *pending* |
+| +Skate | *pending* | *pending* | *pending* | *pending* |
 
 ---
 
@@ -117,7 +113,7 @@ HumanML3D test, 20-rep, NFE=20, CFG=2.5, 50k steps from Distinct.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Baseline | ✓ | | | | 0.354±0.010 | 0.807±0.002 | 0.00155 |
 | +Part | ✓ | ✓ | | | 0.354±0.010 | 0.807±0.002 | 0.00155 |
-| +Anchor | ✓ | ✓ | ✓ | | *pending* | *pending* | *pending* |
+| +Anchor | ✓ | ✓ | ✓ | | 0.371±0.010 | 0.806±0.002 | 0.00153 |
 | +Kinematic | ✓ | ✓ | ✓ | ✓ | *pending* | *pending* | *pending* |
 
 Note: "+Part" = Baseline because Distinct checkpoint already includes part alignment. Ablation isolates anchor and kinematic contributions. ST-CTR is NOT in this table.

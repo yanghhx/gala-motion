@@ -243,9 +243,9 @@ Table~\ref{tab:kit_ablate} reports the TMM extension ablation on KIT-ML (Base, $
 \setlength{\tabcolsep}{2.6pt}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-Model & FID $\downarrow$ & R@3 $\uparrow$ & MM $\downarrow$ & Skate $\downarrow$ \\
+Model & FID $\downarrow$ & R@3 $\uparrow$ & MM $\downarrow$ & Div.\ $\rightarrow$ \\
 \midrule
-Base & -- & -- & -- & -- \\
+Base & $0.400{\pm.020}$ & $0.818{\pm.006}$ & $2.530$ & $11.33$ \\
 $+$ Anchor & -- & -- & -- & -- \\
 $+$ Skate-decay & -- & -- & -- & -- \\
 \bottomrule
@@ -322,7 +322,7 @@ Model & FID $\downarrow$ & R@3 $\uparrow$ & MM $\downarrow$ & Div.\ $\rightarrow
 \midrule
 A3 (control) & $\mathbf{0.354}{\pm.010}$ & $\mathbf{0.807}{\pm.002}$ & $\mathbf{3.064}$ & $\mathbf{9.744}$ & $0.00155$ & $0.00443$ \\
 $+$ Skate-decay & $0.403{\pm.010}$ & $0.799{\pm.002}$ & $3.112$ & $9.740$ & $0.00131$ & $0.00434$ \\
-$+$ Anchor (gate $-3$) & -- & -- & -- & -- & -- & -- \\
+$+$ Anchor (gate $-3$) & $0.371{\pm.010}$ & $0.806{\pm.002}$ & $3.063$ & $9.787$ & $0.00153$ & $0.00441$ \\
 $+$ Anchor $+$ Skate & -- & -- & -- & -- & -- & -- \\
 \midrule
 \multicolumn{7}{l}{\emph{Analysis only (not in final model):}} \\
