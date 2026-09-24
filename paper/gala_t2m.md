@@ -2,7 +2,7 @@
 
 Draft · HumanML3D test, \(n=4544\), 20 replications · Guo / MDM protocol
 
-**Code:** https://github.com/yanghhx/gala-motion
+**Code:** \href{https://github.com/yanghhx/gala-motion}{github.com/yanghhx/gala-motion}
 
 ## Story
 
