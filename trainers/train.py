@@ -1,7 +1,9 @@
 import argparse
+import json
 import os
 import random
 from dataclasses import asdict, fields
+from pathlib import Path
 
 os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
 
@@ -43,6 +45,17 @@ def initialize_anatomical_queries(model, clip_encoder, device):
     pooled = torch.nn.functional.layer_norm(pooled, (pooled.shape[-1],)) * 0.02
     raw = model.module if hasattr(model, "module") else model
     raw.part_alignment.part_queries.copy_(pooled)
+
+
+@torch.no_grad()
+def initialize_anatomical_anchors(model, clip_encoder, device):
+    """Precompute CLIP embeddings of anatomical prompts and cache them."""
+    from models.alignment import ANATOMICAL_PROMPTS
+    hidden, mask = clip_encoder.encode(list(ANATOMICAL_PROMPTS), device)
+    weight = mask.to(hidden.dtype).unsqueeze(-1)
+    pooled = (hidden * weight).sum(1) / weight.sum(1).clamp_min(1)
+    raw = model.module if hasattr(model, "module") else model
+    raw.part_alignment.set_anchor_embeddings(pooled)
 
 
 def distributed_setup():
@@ -138,6 +151,17 @@ def main():
     parser.add_argument("--epochs", type=int)
     parser.add_argument("--max-steps", type=int)
     parser.add_argument("--max-samples", type=int)
+    parser.add_argument("--lambda-kin-acceleration", type=float)
+    parser.add_argument("--lambda-kin-skating", type=float)
+    parser.add_argument("--adaptive-aux-weight", action="store_true")
+    parser.add_argument("--aux-target-ratio", type=float)
+    parser.add_argument("--aux-ratio-decay", action="store_true")
+    parser.add_argument("--aux-ratio-start", type=float)
+    parser.add_argument("--aux-ratio-end", type=float)
+    parser.add_argument("--aux-decay-steps", type=int)
+    parser.add_argument("--checkpoint-dir")
+    parser.add_argument("--log-dir")
+    parser.add_argument("--eval-every-steps", type=int)
     args = parser.parse_args()
     config = yaml.safe_load(open(args.config, encoding="utf-8"))
     if args.epochs:
@@ -146,6 +170,28 @@ def main():
         config["training"]["max_steps"] = args.max_steps
     if args.stage:
         config["model"]["train_stage"] = args.stage
+    if args.lambda_kin_acceleration is not None:
+        config["model"]["lambda_kin_acceleration"] = args.lambda_kin_acceleration
+    if args.lambda_kin_skating is not None:
+        config["model"]["lambda_kin_skating"] = args.lambda_kin_skating
+    if args.adaptive_aux_weight:
+        config["model"]["adaptive_aux_weight"] = True
+    if args.aux_target_ratio is not None:
+        config["model"]["aux_target_ratio"] = args.aux_target_ratio
+    if args.aux_ratio_decay:
+        config["model"]["aux_ratio_decay"] = True
+    if args.aux_ratio_start is not None:
+        config["model"]["aux_ratio_start"] = args.aux_ratio_start
+    if args.aux_ratio_end is not None:
+        config["model"]["aux_ratio_end"] = args.aux_ratio_end
+    if args.aux_decay_steps is not None:
+        config["model"]["aux_decay_steps"] = args.aux_decay_steps
+    if args.checkpoint_dir:
+        config["training"]["checkpoint_dir"] = args.checkpoint_dir
+    if args.log_dir:
+        config["training"]["log_dir"] = args.log_dir
+    if args.eval_every_steps is not None:
+        config["training"]["eval_every_steps"] = args.eval_every_steps
     distributed, local_rank, world_size = distributed_setup()
     use_cuda = torch.cuda.is_available()
     if distributed and not use_cuda:
@@ -175,6 +221,8 @@ def main():
         clip_encoder = FrozenCLIPTextEncoder().to(device)
     if distributed:
         model = DistributedDataParallel(model, device_ids=[local_rank], find_unused_parameters=True)
+    raw_model = model.module if hasattr(model, "module") else model
+    raw_model.set_motion_stats(dataset.mean, dataset.std)
     trainable = [parameter for parameter in model.parameters() if parameter.requires_grad]
     optimizer = torch.optim.AdamW(trainable, lr=train_cfg["learning_rate"], weight_decay=train_cfg["weight_decay"])
     max_steps = int(train_cfg.get("max_steps") or 0)
@@ -187,7 +235,6 @@ def main():
     manager = CheckpointManager(train_cfg["checkpoint_dir"], mode="min")
     writer = SummaryWriter(train_cfg["log_dir"]) if local_rank == 0 and SummaryWriter is not None else None
     start_epoch = global_step = optimizer_step = 0
-    raw_model = model.module if hasattr(model, "module") else model
     if args.init_from:
         init_path = _prefer_global_if_part_regressed(args.init_from, cfg, local_rank)
         state = torch.load(init_path, map_location=device, weights_only=False)
@@ -203,6 +250,12 @@ def main():
         initialize_anatomical_queries(model, clip_encoder, device)
         if local_rank == 0:
             print("initialized fixed anatomical queries from CLIP labels", flush=True)
+    if cfg.use_anatomical_anchor:
+        if clip_encoder is None:
+            raise ValueError("use_anatomical_anchor requires CLIP text encoder")
+        initialize_anatomical_anchors(model, clip_encoder, device)
+        if local_rank == 0:
+            print("initialized anatomical anchor embeddings from CLIP prompts", flush=True)
     ema_decay = float(train_cfg.get("ema_decay") or 0)
     ema = ModelEMA(raw_model, ema_decay) if ema_decay > 0 and cfg.train_stage != "vae" else None
     if args.resume:
@@ -246,6 +299,7 @@ def main():
             motion = batch["motion"].to(device, non_blocking=True)
             lengths = batch["lengths"].to(device, non_blocking=True)
             text, text_mask = encode_batch_text(batch, device, clip_encoder)
+            raw_model.current_opt_step = optimizer_step
             with torch.autocast("cuda", dtype=amp_dtype, enabled=use_amp):
                 losses = model(motion, lengths, text, text_mask)
                 scaled = losses["total"] / grad_accum
@@ -264,6 +318,14 @@ def main():
                 sums[name] = sums.get(name, 0.0) + value.detach().float().item() * count
                 if writer:
                     writer.add_scalar(f"train_step/{name}", value.detach().float().item(), global_step)
+                    if name == "contact_ratio":
+                        writer.add_scalar("stats/contact_ratio", value.detach().float().item(), global_step)
+                    if name == "contact_valid_ratio":
+                        writer.add_scalar("stats/contact_valid_ratio", value.detach().float().item(), global_step)
+                    if name in {"acc_over_flow", "skate_over_flow"}:
+                        writer.add_scalar(f"stats/{name}", value.detach().float().item(), global_step)
+                    if name in {"eff_lambda_acc", "eff_lambda_skate"}:
+                        writer.add_scalar(f"stats/{name}", value.detach().float().item(), global_step)
             global_step += 1
             if local_rank == 0 and guo is not None and optimizer_step > 0 and optimizer_step % eval_every == 0 and (
                 step % grad_accum == 0 or step == len(loader)
@@ -317,6 +379,12 @@ def main():
             print(
                 f"epoch={epoch:03d} loss={epoch_loss:.4f} steps={global_step} opt_steps={optimizer_step}",
                 flush=True,
+            )
+            epoch_losses = {name: total / max(samples, 1) for name, total in sums.items()}
+            epoch_losses["optimizer_step"] = optimizer_step
+            epoch_losses["epoch"] = epoch
+            (Path(train_cfg["checkpoint_dir"]) / "last_epoch_losses.json").write_text(
+                json.dumps(epoch_losses, indent=2), encoding="utf-8",
             )
         if stop:
             break

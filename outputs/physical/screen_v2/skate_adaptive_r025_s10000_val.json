@@ -1,0 +1,87 @@
+{
+  "protocol": "official_guo_t2m",
+  "replication_times": 1,
+  "R@1": 0.365625,
+  "R@1_ci": 0.0,
+  "R@2": 0.54375,
+  "R@2_ci": 0.0,
+  "R@3": 0.66875,
+  "R@3_ci": 0.0,
+  "FID": 2.679051571731037,
+  "FID_ci": 0.0,
+  "MM Dist": 3.8217899799346924,
+  "MM Dist_ci": 0.0,
+  "Diversity": 9.27582836151123,
+  "Diversity_ci": 0.0,
+  "physical/acceleration": 0.0037198665319010614,
+  "physical/acceleration_ci": 0.0,
+  "physical/acceleration_magnitude": 0.0033137358026579023,
+  "physical/acceleration_magnitude_ci": 0.0,
+  "physical/bone_error": 0.05213749594986439,
+  "physical/bone_error_ci": 0.0,
+  "physical/bone_length_variance": 0.0033481198479421437,
+  "physical/bone_length_variance_ci": 0.0,
+  "physical/contact_ratio": 0.8645445823669433,
+  "physical/contact_ratio_ci": 0.0,
+  "physical/foot_skating": 0.00025374014585395345,
+  "physical/foot_skating_ci": 0.0,
+  "physical/velocity": 0.010859174281358719,
+  "physical/velocity_ci": 0.0,
+  "num_samples": 320,
+  "replications": [
+    {
+      "R@1": 0.365625,
+      "R@2": 0.54375,
+      "R@3": 0.66875,
+      "FID": 2.679051571731037,
+      "MM Dist": 3.8217899799346924,
+      "Diversity": 9.27582836151123,
+      "num_samples": 320,
+      "rprecision_samples": 320,
+      "physical/bone_length_variance": 0.0033481198479421437,
+      "physical/acceleration_magnitude": 0.0033137358026579023,
+      "physical/foot_skating": 0.00025374014585395345,
+      "physical/contact_ratio": 0.8645445823669433,
+      "physical/bone_error": 0.05213749594986439,
+      "physical/acceleration": 0.0037198665319010614,
+      "physical/velocity": 0.010859174281358719,
+      "replication": 0
+    }
+  ],
+  "eval_mode": "eval_fixed",
+  "split": "val",
+  "max_samples": 320,
+  "nfe": 20,
+  "guidance": 2.5,
+  "generate": true,
+  "baseline": {
+    "source": "GENMO ICCV 2025 Table 4",
+    "R@3": 0.632,
+    "FID": 0.216,
+    "MM Dist": 3.466,
+    "Diversity": 11.342
+  },
+  "comparison": {
+    "R@3": {
+      "ours": 0.66875,
+      "baseline": 0.632,
+      "beats_or_matches": true
+    },
+    "FID": {
+      "ours": 2.679051571731037,
+      "baseline": 0.216,
+      "beats_or_matches": false
+    },
+    "MM Dist": {
+      "ours": 3.8217899799346924,
+      "baseline": 3.466,
+      "beats_or_matches": false
+    },
+    "Diversity": {
+      "ours": 9.27582836151123,
+      "baseline": 11.342,
+      "beats_or_matches": false
+    }
+  },
+  "beats_gala_target": false
+}

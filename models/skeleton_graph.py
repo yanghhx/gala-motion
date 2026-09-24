@@ -4,6 +4,9 @@ import torch
 from torch import nn
 
 
+# Sequential chains used by the current graph/bone losses. This is NOT the official
+# MDM t2m_kinematic_chain ([[0,2,5,8,11], [0,1,4,7,10], ...]). Skating uses
+# HML22_FOOT_JOINTS / KIT21_FOOT_JOINTS below instead of these chain tips.
 HML22_EDGES = (
     (0, 1), (1, 2), (2, 3), (0, 4), (4, 5), (5, 6), (0, 7), (7, 8),
     (8, 9), (9, 10), (8, 11), (11, 12), (12, 13), (13, 14), (14, 15),
@@ -33,6 +36,14 @@ HML22_PARTS = (
     (4, 5, 6),                 # right leg
 )
 PART_NAMES = ("torso", "left_arm", "right_arm", "left_leg", "right_leg")
+
+# Official Guo/MDM contact-joint order (feet_l then feet_r in motion_process.py).
+# These are dataset-convention indices, not the simplified HML22_EDGES chain tips.
+# HumanML3D: left ankle/foot, right ankle/foot. KIT-ML: left toe/foot, right toe/foot.
+HML22_FOOT_JOINTS = (7, 10, 8, 11)
+HML22_FOOT_NAMES = ("left_ankle", "left_foot", "right_ankle", "right_foot")
+KIT21_FOOT_JOINTS = (19, 20, 14, 15)
+KIT21_FOOT_NAMES = ("left_toe", "left_foot", "right_toe", "right_foot")
 KIT21_PARTS = (
     (0, 1, 2, 3, 4),
     (5, 6, 7),
@@ -44,6 +55,14 @@ KIT21_PARTS = (
 
 def body_parts(num_joints: int):
     return KIT21_PARTS if num_joints == 21 else HML22_PARTS
+
+
+def foot_joints(num_joints: int):
+    return KIT21_FOOT_JOINTS if num_joints == 21 else HML22_FOOT_JOINTS
+
+
+def foot_names(num_joints: int):
+    return KIT21_FOOT_NAMES if num_joints == 21 else HML22_FOOT_NAMES
 
 
 def pool_body_parts(joint_feat: torch.Tensor, frame_mask: torch.Tensor, parts) -> torch.Tensor:
@@ -112,20 +131,99 @@ class CTRGraphBlock(nn.Module):
         return x + self.ffn(x)
 
 
+class STCTRGraphBlock(nn.Module):
+    """CTR spatial graph + temporal self-attention per joint.
+
+    Spatial branch reuses CTRGraphBlock. Temporal branch does per-joint
+    self-attention across frames with learnable relative-position bias and
+    frame-mask awareness.  Gates start at α_s=1, α_t=0 so the model begins
+    from the original spatial-only behaviour.
+    """
+
+    def __init__(self, dim: int, heads: int = 4, temporal_heads: int = 4,
+                 temporal_max_distance: int = 32, temporal_dropout: float = 0.1):
+        super().__init__()
+        self.dim = dim
+        self.heads = heads
+        self.temporal_heads = temporal_heads
+        self.temporal_max_distance = temporal_max_distance
+        # --- spatial branch (CTR) ---
+        self.spatial = CTRGraphBlock(dim, heads)
+        self.spatial_gate = nn.Parameter(torch.tensor(1.0))  # α_s
+        # --- temporal branch ---
+        self.temporal_norm = nn.LayerNorm(dim)
+        self.t_qkv = nn.Linear(dim, dim * 3, bias=False)
+        self.t_proj = nn.Linear(dim, dim)
+        self.temporal_gate = nn.Parameter(torch.tensor(0.0))  # α_t
+        self.t_ffn = nn.Sequential(
+            nn.LayerNorm(dim), nn.Linear(dim, dim * 4), nn.GELU(), nn.Linear(dim * 4, dim),
+        )
+        # Learnable relative-position bias table: (2*max_dist+1, heads)
+        self.rel_pos_bias = nn.Parameter(torch.zeros(2 * temporal_max_distance + 1, temporal_heads))
+        self.temporal_dropout = nn.Dropout(temporal_dropout)
+
+    def _temporal_attention(self, x: torch.Tensor, frame_mask: torch.Tensor) -> torch.Tensor:
+        """x: (B, T, J, D)  frame_mask: (B, T) bool."""
+        b, t, j, d = x.shape
+        h = self.temporal_heads
+        dh = d // h
+        # Reshape to (B*J, T, D) so each joint attends across time.
+        flat = x.permute(0, 2, 1, 3).reshape(b * j, t, d)
+        q, k, v = self.t_qkv(self.temporal_norm(flat)).chunk(3, dim=-1)
+        q = q.view(b * j, t, h, dh).transpose(1, 2)  # (B*J, h, T, dh)
+        k = k.view(b * j, t, h, dh).transpose(1, 2)
+        v = v.view(b * j, t, h, dh).transpose(1, 2)
+        logits = torch.matmul(q, k.transpose(-2, -1)) * dh ** -0.5  # (B*J, h, T, T)
+        # Relative position bias
+        rel = self.rel_pos_bias[self.rel_pos_bias.shape[0] // 2]  # center = 0
+        positions = torch.arange(t, device=x.device)
+        dist = positions[None] - positions[:, None]  # (T, T)
+        dist = dist.clamp(-self.temporal_max_distance, self.temporal_max_distance)
+        bias_idx = dist + self.temporal_max_distance  # (T, T)
+        logits = logits + self.rel_pos_bias[bias_idx].permute(2, 0, 1)  # (h, T, T) -> broadcast
+        # Frame mask: (B, T) -> (B*J, 1, 1, T)
+        pad_mask = ~frame_mask[:, None].expand(b, j, t).reshape(b * j, t)
+        logits = logits.masked_fill(pad_mask[:, None, None], torch.finfo(logits.dtype).min)
+        attn = logits.softmax(dim=-1)
+        attn = self.temporal_dropout(attn)
+        out = torch.matmul(attn, v).transpose(1, 2).reshape(b * j, t, d)
+        out = out.reshape(b, j, t, d).permute(0, 2, 1, 3)  # back to (B, T, J, D)
+        return self.t_proj(out)
+
+    def forward(self, x: torch.Tensor, adjacency: torch.Tensor,
+                 frame_mask: torch.Tensor | None = None) -> torch.Tensor:
+        if frame_mask is None:
+            frame_mask = torch.ones(x.shape[:2], device=x.device, dtype=torch.bool)
+        x = x + self.spatial_gate * self.spatial(x, adjacency)
+        x = x + self.temporal_gate * self._temporal_attention(x, frame_mask)
+        return x + self.t_ffn(x)
+
+
 class SkeletonGraphEncoder(nn.Module):
-    def __init__(self, num_joints: int, dim: int, layers: int, heads: int, kind: str = "ctr"):
+    def __init__(self, num_joints: int, dim: int, layers: int, heads: int, kind: str = "ctr",
+                 temporal_heads: int = 4, temporal_max_distance: int = 32, temporal_dropout: float = 0.1):
         super().__init__()
         self.kind = kind
         self.register_buffer("adjacency", normalized_adjacency(num_joints), persistent=False)
         self.input = nn.Linear(6, dim)
-        block = STGCNBlock if kind == "stgcn" else CTRGraphBlock
-        self.blocks = nn.ModuleList([block(dim, heads) for _ in range(layers)])
+        if kind == "st_ctr":
+            block_cls = STCTRGraphBlock
+            self.blocks = nn.ModuleList([
+                block_cls(dim, heads, temporal_heads, temporal_max_distance, temporal_dropout)
+                for _ in range(layers)
+            ])
+        else:
+            block_cls = STGCNBlock if kind == "stgcn" else CTRGraphBlock
+            self.blocks = nn.ModuleList([block_cls(dim, heads) for _ in range(layers)])
         self.output_norm = nn.LayerNorm(dim)
 
-    def forward(self, positions: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def forward(self, positions: torch.Tensor, frame_mask: torch.Tensor | None = None) -> tuple[torch.Tensor, torch.Tensor]:
         velocity = torch.diff(positions, dim=1, prepend=positions[:, :1])
         x = self.input(torch.cat((positions, velocity), dim=-1))
         for block in self.blocks:
-            x = block(x, self.adjacency)
+            if self.kind == "st_ctr":
+                x = block(x, self.adjacency, frame_mask)
+            else:
+                x = block(x, self.adjacency)
         x = self.output_norm(x)
         return x.mean(dim=2), x

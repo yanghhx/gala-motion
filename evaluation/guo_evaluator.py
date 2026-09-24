@@ -193,8 +193,9 @@ def official_replication_metrics(real_motion, gen_motion, text_emb, batch_size=3
 
 def summarize_replications(runs):
     keys = ["R@1", "R@2", "R@3", "FID", "MM Dist", "Diversity"]
+    extra = sorted({key for run in runs for key in run if str(key).startswith("physical/")})
     summary = {"protocol": "official_guo_t2m", "replication_times": len(runs)}
-    for key in keys:
+    for key in keys + extra:
         mean, conf = _metric_statistics([run[key] for run in runs], len(runs))
         summary[key] = float(mean)
         summary[f"{key}_ci"] = float(conf)

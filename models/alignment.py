@@ -31,22 +31,37 @@ class LanguageMotionAlignment(nn.Module):
         return _symmetric_nce(text_emb, motion_emb, self.logit_scale), text_emb, motion_emb
 
 
-class PartLanguageAlignment(nn.Module):
-    """Learnable anatomical queries attend to CLIP tokens and match body-part latents.
+ANATOMICAL_PROMPTS = (
+    "torso, body and head movement",
+    "left arm, left hand and left shoulder movement",
+    "right arm, right hand and right shoulder movement",
+    "left leg and left foot movement",
+    "right leg and right foot movement",
+)
 
-    Query embeddings are text-only, so the same part tokens can condition the DiT
-    at sampling time. Training aligns each part query with the pooled graph latent
-    of that body part (torso, arms, legs).
+
+class PartLanguageAlignment(nn.Module):
+    """Learnable anatomical queries attend to text tokens and match body-part latents.
+
+    With ``use_anatomical_anchor=True``, learnable queries are regularised toward
+    precomputed embeddings of anatomical prompts, and a gated anchor signal is
+    mixed into the query at attention time:
+
+        q_p^anchor = q_p^learn + sigmoid(g_p) * W_a * a_p
+        L_anchor   = mean_p [1 - cos(W_q q_p, W_a a_p)]
     """
 
     def __init__(
         self, text_dim: int, motion_dim: int, embed_dim: int, num_parts: int = 5,
         diversity_weight: float = 0.05, query_diversity_weight: float = 0.01,
+        use_anatomical_anchor: bool = False, anchor_weight: float = 0.05,
     ):
         super().__init__()
         self.num_parts = num_parts
         self.diversity_weight = diversity_weight
         self.query_diversity_weight = query_diversity_weight
+        self.use_anatomical_anchor = use_anatomical_anchor
+        self.anchor_weight = anchor_weight
         self.part_queries = nn.Parameter(torch.randn(num_parts, text_dim) * 0.02)
         self.query_proj = nn.Linear(text_dim, embed_dim)
         self.key_proj = nn.Linear(text_dim, embed_dim)
@@ -55,12 +70,29 @@ class PartLanguageAlignment(nn.Module):
         self.motion_proj = nn.Sequential(nn.LayerNorm(motion_dim), nn.Linear(motion_dim, embed_dim))
         self.lang_proj = nn.Sequential(nn.LayerNorm(text_dim), nn.Linear(text_dim, embed_dim))
         self.logit_scale = nn.Parameter(torch.tensor(1 / 0.07).log())
+        if use_anatomical_anchor:
+            self.anchor_proj = nn.Linear(text_dim, text_dim)
+            self.anchor_to_embed = nn.Linear(text_dim, embed_dim)
+            self.anchor_gate = nn.Parameter(torch.zeros(num_parts))
+            self.register_buffer("anchor_embeddings", torch.zeros(num_parts, text_dim))
+
+    def set_anchor_embeddings(self, embeddings: torch.Tensor):
+        if not self.use_anatomical_anchor:
+            return
+        self.anchor_embeddings = embeddings.clone().detach()
+
+    def _anchored_queries(self) -> torch.Tensor:
+        """Part queries with gated anchor signal mixed in."""
+        if not self.use_anatomical_anchor:
+            return self.part_queries
+        gate = torch.sigmoid(self.anchor_gate)
+        return self.part_queries + gate[:, None] * self.anchor_proj(self.anchor_embeddings)
 
     def part_text(
         self, text: torch.Tensor, text_mask: torch.Tensor, return_attention: bool = False,
     ) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
         batch = text.shape[0]
-        query = self.query_proj(self.part_queries).unsqueeze(0).expand(batch, -1, -1)
+        query = self.query_proj(self._anchored_queries()).unsqueeze(0).expand(batch, -1, -1)
         key = self.key_proj(text)
         value = self.value_proj(text)
         logits = torch.matmul(query, key.transpose(-1, -2)) * (query.shape[-1] ** -0.5)
@@ -92,4 +124,9 @@ class PartLanguageAlignment(nn.Module):
             + self.diversity_weight * attention_diversity
             + self.query_diversity_weight * query_diversity
         )
+        if self.use_anatomical_anchor:
+            q_bar = F.normalize(self.query_proj(self.part_queries), dim=-1)
+            a_bar = F.normalize(self.anchor_to_embed(self.anchor_embeddings), dim=-1)
+            anchor_loss = (1 - (q_bar * a_bar).sum(-1)).mean()
+            loss = loss + self.anchor_weight * anchor_loss
         return loss, part_tokens

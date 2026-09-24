@@ -140,6 +140,18 @@ Sampling is Euler,
 $z\leftarrow z+\tfrac1N\bigl(v_\emptyset+\omega(v_c-v_\emptyset)\bigr)$,
 with $N\in\{10,20,50\}$ and $\omega\in\{2.0,2.5\}$.
 
+\noindent\textbf{Contact-aware skating loss.}
+The existing $\mathcal{L}_{\mathrm{foot}}$ reconstructs the four GT foot-contact channels but does not penalize physical skating.
+We add a contact-aware skating loss on the decoded endpoint $\hat X=D(\hat z_1)$.
+World-frame foot positions $\hat p_{t,f}$ are recovered from the 263-D Guo features via \texttt{recover\_ric}.
+The GT contact mask $c_{t,f}$ is taken from the last four binary channels (GT-contact-conditioned generated displacement):
+\begin{equation}
+\mathcal{L}_{\mathrm{skate}}=\frac{\sum_{t,f}c_{t,f}\|\hat p_{t+1,f}-\hat p_{t,f}\|_2^2}{\sum_{t,f}c_{t,f}+\epsilon}.
+\end{equation}
+Because $\mathcal{L}_{\mathrm{skate}}{\sim}10^{-4}$ while $\mathcal{L}_{\mathrm{RF}}{\sim}60$, a fixed weight would need $\lambda{\sim}3{\times}10^5$.
+We instead use \emph{adaptive weighting} $\lambda_{\mathrm{eff}}=\eta\,\mathcal{L}_{\mathrm{RF}}/\mathcal{L}_{\mathrm{skate}}$ so that $\lambda_{\mathrm{eff}}\mathcal{L}_{\mathrm{skate}}/\mathcal{L}_{\mathrm{RF}}\approx\eta$ automatically.
+A decay schedule $\eta{:}0.03{\to}0.01$ over the first 40k steps recovers FID while retaining skating reduction.
+
 \noindent\textbf{Training.}
 Stage 1: VAE only, 35k steps, effective batch 16, bf16.
 Stage 2: freeze graph$+$VAE, train flow$+$alignment, 100k steps, lr $2{\times}10^{-4}$, EMA $0.9999$.
@@ -260,6 +272,39 @@ GALA & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\checkmark$ & $\mathbf{0.80
 \end{table}
 
 The graph alone lowers FID by $0.033$; part-indexed alignment recovers the retrieval loss introduced by global-only alignment and lowers FID by another $0.035$; kinematic supervision yields the final $0.030$ reduction. Before query-diversity regularization, the mean off-diagonal cosine between the five attention profiles was $0.9988$; after repair it is $0.3474$ over three fixed prompts. This is evidence against slot collapse, not a claim that raw attention is a faithful lexical explanation.
+
+\subsection{Physical constraints ablation}
+
+Table~\ref{tab:phys} isolates the contribution of the contact-aware skating loss.
+All variants continue training 50k steps from the same Distinct checkpoint with identical seed, hparams, NFE$=$20, CFG$=$2.5, and the official 20-replication test protocol.
+A3 is the $\lambda{=}0$ control; ``Skate'' uses fixed $\eta{=}0.02$; ``Skate-decay'' uses $\eta{:}0.03{\to}0.01$.
+We also ablate two TMM extensions: an anatomically anchored part alignment (Anchor) that regularises the five learnable queries toward cached CLIP embeddings of body-part prompts, and a spatio-temporal CTR graph (ST-CTR) that adds per-joint temporal self-attention to the spatial CTR block.
+
+\begin{table}[t]
+\centering
+\caption{Physical constraints ablation on HumanML3D test (20 replications, 20 NFEs, CFG 2.5, 50k steps from Distinct). Skating and paired acceleration are GT-contact-conditioned generated metrics.}
+\label{tab:phys}
+\small
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Model & FID $\downarrow$ & R@3 $\uparrow$ & MM $\downarrow$ & Div.\ $\rightarrow$ & Skate $\downarrow$ & Acc.\ $\downarrow$ \\
+\midrule
+A3 (control) & $\mathbf{0.354}{\pm.010}$ & $\mathbf{0.807}{\pm.002}$ & $\mathbf{3.064}$ & $\mathbf{9.744}$ & $0.00155$ & $0.00443$ \\
+$+$ Skate & $0.446{\pm.008}$ & $0.794{\pm.002}$ & $3.148$ & $9.723$ & $\mathbf{0.00117}$ & $\mathbf{0.00427}$ \\
+$+$ Skate-decay & $0.403{\pm.010}$ & $0.799{\pm.002}$ & $3.112$ & $9.740$ & $0.00131$ & $0.00434$ \\
+$+$ Anchor & $0.369{\pm.008}$ & $0.805{\pm.002}$ & $3.062$ & $9.743$ & $0.00155$ & $0.00442$ \\
+$+$ ST-CTR & $0.458{\pm.010}$ & $0.792{\pm.002}$ & $3.125$ & $9.379$ & $0.00147$ & $0.00439$ \\
+$+$ All (TMM) & $0.502{\pm.010}$ & $0.787{\pm.002}$ & $3.166$ & $9.449$ & $0.00129$ & $0.00432$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The skating loss reduces foot skating by $25\%$ ($0.00155{\to}0.00117$) at fixed $\eta$, or $15\%$ ($0.00131$) with the decay schedule, with CI non-overlapping in both cases.
+The decay schedule recovers most of the FID cost ($0.446{\to}0.403$) and R@3 ($0.794{\to}0.799$), making it the recommended configuration: \textbf{skating $-15\%$, FID $+0.049$, R@3 $-0.008$} vs control.
+The anatomical anchor adds near-zero quality cost (FID $+0.015$, R@3 $-0.002$, both within CI), confirming that the five queries can be grounded in CLIP semantics without hurting generation.
+ST-CTR adds temporal modelling but at a quality cost (FID $+0.104$); the temporal gate starts at zero and may need a warmer schedule.
+The full TMM combination accumulates costs rather than showing synergy, confirming that the physical benefit comes from the skating loss alone.
 
 \subsection{Tokenizer: graph vs.\ conv}
 

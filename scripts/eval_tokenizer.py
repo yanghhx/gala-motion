@@ -40,6 +40,7 @@ def main():
         config, args.split, args.batch_size, args.max_samples,
         hash_text=False, mode="eval", shuffle=False,
     )
+    model.set_motion_stats(dataset.mean, dataset.std)
     kin_sums, n_batches = {}, 0
     if not evaluator_ready():
         raise FileNotFoundError("Guo evaluator files are missing under checkpoints/t2m_evaluators")
@@ -51,7 +52,7 @@ def main():
         motion = batch["motion"].to(device)
         lengths = batch["lengths"].to(device)
         recon = reconstruct_batch(model, motion, lengths)
-        errors = reconstruction_errors(model, motion, lengths)
+        errors = reconstruction_errors(model, motion, lengths, dataset.mean, dataset.std)
         for key, value in errors.items():
             kin_sums[key] = kin_sums.get(key, 0.0) + value
         n_batches += 1

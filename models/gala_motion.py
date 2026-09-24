@@ -8,6 +8,14 @@ from torch import nn
 
 from diffusion.rectified_flow import RectifiedFlowDiT
 from models.alignment import LanguageMotionAlignment, PartLanguageAlignment, masked_mean
+from models.motion_repr import (
+    contact_mask_for_source,
+    contact_velocity_valid_ratio,
+    denormalize_motion,
+    paired_acceleration_error,
+    recover_from_ric,
+    skating_error,
+)
 from models.motion_vae import TopologyMotionVAE
 from models.skeleton_graph import PART_NAMES, body_parts, pool_body_parts, skeleton_edges, SkeletonGraphEncoder
 from models.text_encoder import TokenTextEncoder
@@ -30,8 +38,14 @@ class GALAMotionConfig:
     stride: int = 4
     use_graph: bool = True
     graph_type: str = "ctr"
+    use_temporal_graph: bool = False
+    temporal_heads: int = 4
+    temporal_max_distance: int = 32
+    temporal_dropout: float = 0.1
     use_alignment: bool = True
     use_part_align: bool = False
+    use_anatomical_anchor: bool = False
+    anchor_weight: float = 0.05
     use_kinematic_flow: bool = False
     use_tokenizer: bool = True
     cond_drop_prob: float = 0.15
@@ -46,6 +60,17 @@ class GALAMotionConfig:
     lambda_kin_velocity: float = 0.05
     lambda_kin_bone: float = 0.05
     lambda_kin_foot: float = 0.05
+    lambda_kin_acceleration: float = 0.0
+    lambda_kin_skating: float = 0.0
+    adaptive_aux_weight: bool = False
+    aux_target_ratio: float = 0.15
+    aux_ratio_decay: bool = False
+    aux_ratio_start: float = 0.03
+    aux_ratio_end: float = 0.01
+    aux_decay_steps: int = 40000
+    contact_source: str = "gt_contact_feature"
+    foot_height_threshold: float = 0.05
+    foot_velocity_threshold: float = 0.01
     num_parts: int = 5
     foot_dim: int = 4
 
@@ -65,9 +90,14 @@ class GALAMotion(nn.Module):
                 f"got num_parts={cfg.num_parts} and {len(self.parts)} graph parts"
             )
         graph_kind = "none" if not cfg.use_graph else cfg.graph_type
+        if cfg.use_temporal_graph and graph_kind == "ctr":
+            graph_kind = "st_ctr"
         self.graph = SkeletonGraphEncoder(
             cfg.num_joints, cfg.latent_dim, cfg.graph_layers, cfg.num_heads,
-            kind="stgcn" if graph_kind == "stgcn" else "ctr",
+            kind="stgcn" if graph_kind == "stgcn" else graph_kind,
+            temporal_heads=cfg.temporal_heads,
+            temporal_max_distance=cfg.temporal_max_distance,
+            temporal_dropout=cfg.temporal_dropout,
         )
         self.flat_graph = nn.Linear(cfg.motion_dim, cfg.latent_dim)
         self.vae = TopologyMotionVAE(cfg.motion_dim, cfg.latent_dim, cfg.latent_dim, cfg.stride)
@@ -79,12 +109,21 @@ class GALAMotion(nn.Module):
             cfg.text_dim, cfg.latent_dim, cfg.latent_dim, num_parts=cfg.num_parts,
             diversity_weight=cfg.part_diversity_weight,
             query_diversity_weight=cfg.query_diversity_weight,
+            use_anatomical_anchor=cfg.use_anatomical_anchor,
+            anchor_weight=cfg.anchor_weight,
         )
         self.flow = RectifiedFlowDiT(
             cfg.latent_dim, cfg.model_dim, cfg.text_dim, cfg.num_heads, cfg.dit_layers,
             max_tokens=(cfg.max_frames + cfg.stride - 1) // cfg.stride,
         )
+        # Dataset Mean/Std are attributes, not buffers, so old checkpoints still load strictly.
+        self.motion_mean = None
+        self.motion_std = None
         self.apply_train_stage()
+
+    def set_motion_stats(self, mean, std):
+        self.motion_mean = torch.as_tensor(mean, dtype=torch.float32)
+        self.motion_std = torch.as_tensor(std, dtype=torch.float32)
 
     @property
     def uses_graph(self) -> bool:
@@ -115,7 +154,7 @@ class GALAMotion(nn.Module):
         frame_mask = sequence_mask(lengths, motion.shape[1])
         clean_motion = motion * frame_mask.unsqueeze(-1)
         if self.uses_graph:
-            graph_frame, graph_joint = self.graph(self.joint_positions(clean_motion))
+            graph_frame, graph_joint = self.graph(self.joint_positions(clean_motion), frame_mask)
         else:
             graph_frame = self.flat_graph(clean_motion)
             graph_joint = graph_frame.unsqueeze(2).expand(-1, -1, self.cfg.num_joints, -1)
@@ -177,17 +216,55 @@ class GALAMotion(nn.Module):
         return stacked.sum() / frame_mask.sum().clamp_min(1) / len(bone_terms)
 
     def _velocity_loss(self, pred_motion, true_motion, frame_mask):
+        # Feature-space L1 on t -> t+1. Both endpoints of a transition must be valid,
+        # so padding and the padded/valid boundary are excluded. First frame has no
+        # incoming difference (torch.diff); last valid pair is included.
         pred_velocity = torch.diff(pred_motion, dim=1)
         true_velocity = torch.diff(true_motion, dim=1)
         velocity_mask = frame_mask[:, 1:] & frame_mask[:, :-1]
         valid_velocity = velocity_mask.unsqueeze(-1).expand_as(pred_velocity)
         return ((pred_velocity - true_velocity).abs() * valid_velocity).sum() / valid_velocity.sum().clamp_min(1)
 
-    def _foot_loss(self, pred_motion, true_motion, frame_mask):
+    def _acceleration_loss(self, pred_motion, true_motion, frame_mask):
+        """L1 on RIC-local joint acceleration. Same joint convention as bone loss.
+
+        a_t = p_{t+1} - 2 p_t + p_{t-1}, only on three consecutive valid frames.
+        """
+        pred_pos = self.joint_positions(pred_motion)
+        true_pos = self.joint_positions(true_motion)
+        return paired_acceleration_error(pred_pos, true_pos, frame_mask)
+
+    def _foot_feature_loss(self, pred_motion, true_motion, frame_mask):
+        """L1 on the last Guo foot-contact channels. Not a skating / physics loss."""
         dim = min(self.cfg.foot_dim, pred_motion.shape[-1])
         pred_foot, true_foot = pred_motion[..., -dim:], true_motion[..., -dim:]
         valid = frame_mask.unsqueeze(-1).expand_as(pred_foot)
         return ((pred_foot - true_foot).abs() * valid).sum() / valid.sum().clamp_min(1)
+
+    def _foot_loss(self, pred_motion, true_motion, frame_mask):
+        return self._foot_feature_loss(pred_motion, true_motion, frame_mask)
+
+    def _world_positions(self, motion):
+        denorm = denormalize_motion(motion, self.motion_mean, self.motion_std)
+        return recover_from_ric(denorm, self.cfg.num_joints)
+
+    def _contact_skating_loss(self, pred_motion, true_motion, frame_mask):
+        pred_pos = self._world_positions(pred_motion)
+        true_pos = self._world_positions(true_motion)
+        contact = contact_mask_for_source(
+            self.cfg.contact_source, true_motion, true_pos, frame_mask, self.cfg.num_joints,
+            mean=self.motion_mean, std=self.motion_std,
+            height_threshold=self.cfg.foot_height_threshold,
+            velocity_threshold=self.cfg.foot_velocity_threshold,
+        )
+        loss = skating_error(pred_pos, contact, frame_mask, self.cfg.num_joints)
+        trans = (frame_mask[:, 1:] & frame_mask[:, :-1]).unsqueeze(-1).to(loss.dtype)
+        active = contact[:, :-1].to(loss.dtype) * trans
+        ratio = active.sum() / trans.expand_as(active).sum().clamp_min(1)
+        r_valid = contact_velocity_valid_ratio(
+            true_pos, contact, frame_mask, self.cfg.num_joints, self.cfg.foot_velocity_threshold,
+        )
+        return loss, ratio.detach(), r_valid.detach()
 
     def compute_losses(self, motion, lengths, text, text_mask):
         z, mu, logvar, frame_mask, latent_mask, _, graph_joint = self.encode(motion, lengths)
@@ -201,6 +278,10 @@ class GALAMotion(nn.Module):
         kin_velocity = rec_loss.new_zeros(())
         kin_bone = rec_loss.new_zeros(())
         kin_foot = rec_loss.new_zeros(())
+        kin_acceleration = rec_loss.new_zeros(())
+        kin_skating = rec_loss.new_zeros(())
+        contact_ratio = rec_loss.new_zeros(())
+        contact_valid_ratio = rec_loss.new_zeros(())
         if self.cfg.train_stage == "vae":
             alignment_loss = rec_loss.new_zeros(())
             flow_loss = rec_loss.new_zeros(())
@@ -223,9 +304,32 @@ class GALAMotion(nn.Module):
                 pred_motion = self.decode(endpoint, motion.shape[1]) * frame_mask.unsqueeze(-1)
                 kin_velocity = self._velocity_loss(pred_motion, motion, frame_mask)
                 kin_bone = self._bone_loss(pred_motion, motion, frame_mask)
-                kin_foot = self._foot_loss(pred_motion, motion, frame_mask)
+                kin_foot = self._foot_feature_loss(pred_motion, motion, frame_mask)
+                if self.cfg.lambda_kin_acceleration > 0:
+                    kin_acceleration = self._acceleration_loss(pred_motion, motion, frame_mask)
+                if self.cfg.lambda_kin_skating > 0:
+                    kin_skating, contact_ratio, contact_valid_ratio = self._contact_skating_loss(
+                        pred_motion, motion, frame_mask,
+                    )
             else:
                 flow_loss = flow_out
+        weighted_kin_velocity = self.cfg.lambda_kin_velocity * kin_velocity
+        weighted_kin_bone = self.cfg.lambda_kin_bone * kin_bone
+        weighted_kin_foot = self.cfg.lambda_kin_foot * kin_foot
+        flow_scale = flow_loss.detach().abs().clamp_min(1e-8)
+        eff_lambda_acc = self.cfg.lambda_kin_acceleration
+        eff_lambda_skate = self.cfg.lambda_kin_skating
+        if self.cfg.adaptive_aux_weight and self.cfg.train_stage != "vae":
+            eta = self.cfg.aux_target_ratio
+            if self.cfg.aux_ratio_decay:
+                progress = min(getattr(self, "current_opt_step", 0) / max(self.cfg.aux_decay_steps, 1), 1.0)
+                eta = self.cfg.aux_ratio_start + (self.cfg.aux_ratio_end - self.cfg.aux_ratio_start) * progress
+            aux_scale_acc = kin_acceleration.detach().abs().clamp_min(1e-8)
+            aux_scale_skate = kin_skating.detach().abs().clamp_min(1e-8)
+            eff_lambda_acc = eta * flow_scale / aux_scale_acc if self.cfg.lambda_kin_acceleration > 0 else 0.0
+            eff_lambda_skate = eta * flow_scale / aux_scale_skate if self.cfg.lambda_kin_skating > 0 else 0.0
+        weighted_kin_acceleration = eff_lambda_acc * kin_acceleration
+        weighted_kin_skating = eff_lambda_skate * kin_skating
         if self.cfg.train_stage == "vae":
             total = (
                 self.cfg.lambda_reconstruction * rec_loss + self.cfg.lambda_kl * kl_loss
@@ -235,24 +339,34 @@ class GALAMotion(nn.Module):
             total = (
                 flow_loss + self.cfg.lambda_alignment * alignment_loss
                 + self.cfg.lambda_part * part_loss
-                + self.cfg.lambda_kin_velocity * kin_velocity
-                + self.cfg.lambda_kin_bone * kin_bone
-                + self.cfg.lambda_kin_foot * kin_foot
+                + weighted_kin_velocity + weighted_kin_bone + weighted_kin_foot
+                + weighted_kin_acceleration + weighted_kin_skating
             )
         else:
             total = (
                 flow_loss + self.cfg.lambda_reconstruction * rec_loss + self.cfg.lambda_kl * kl_loss
                 + self.cfg.lambda_alignment * alignment_loss + self.cfg.lambda_part * part_loss
                 + self.cfg.lambda_bone * bone_loss + self.cfg.lambda_velocity * velocity_loss
-                + self.cfg.lambda_kin_velocity * kin_velocity
-                + self.cfg.lambda_kin_bone * kin_bone
-                + self.cfg.lambda_kin_foot * kin_foot
+                + weighted_kin_velocity + weighted_kin_bone + weighted_kin_foot
+                + weighted_kin_acceleration + weighted_kin_skating
             )
         return {
             "total": total, "reconstruction": rec_loss, "kl": kl_loss,
             "alignment": alignment_loss, "part": part_loss, "flow": flow_loss,
             "bone": bone_loss, "velocity": velocity_loss,
             "kin_velocity": kin_velocity, "kin_bone": kin_bone, "kin_foot": kin_foot,
+            "kin_acceleration": kin_acceleration, "kin_skating": kin_skating,
+            "contact_ratio": contact_ratio,
+            "contact_valid_ratio": contact_valid_ratio,
+            "weighted_kin_velocity": weighted_kin_velocity,
+            "weighted_kin_bone": weighted_kin_bone,
+            "weighted_kin_foot": weighted_kin_foot,
+            "weighted_kin_acceleration": weighted_kin_acceleration,
+            "weighted_kin_skating": weighted_kin_skating,
+            "acc_over_flow": (weighted_kin_acceleration.detach() / flow_scale),
+            "skate_over_flow": (weighted_kin_skating.detach() / flow_scale),
+            "eff_lambda_acc": weighted_kin_acceleration.new_tensor(eff_lambda_acc) if not isinstance(eff_lambda_acc, torch.Tensor) else eff_lambda_acc.detach(),
+            "eff_lambda_skate": weighted_kin_skating.new_tensor(eff_lambda_skate) if not isinstance(eff_lambda_skate, torch.Tensor) else eff_lambda_skate.detach(),
         }
 
     def sample(self, text, text_mask, lengths, steps=30, guidance_scale=2.5):

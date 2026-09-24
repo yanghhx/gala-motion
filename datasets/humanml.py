@@ -144,11 +144,17 @@ class HumanMLDataset(Dataset):
         item = self.items[index]
         motion = np.load(self.motion_dir / f"{item['id']}.npy").astype(np.float32)
         motion = motion[item["start"]: item["end"]][: self.max_frames]
-        if self.mode == "eval":
+        if self.mode in {"eval", "eval_fixed"}:
             length = self._crop_eval_length(len(motion))
-            start = 0 if len(motion) == length else int(np.random.randint(0, len(motion) - length + 1))
+            if self.mode == "eval_fixed" or len(motion) == length:
+                start = 0
+            else:
+                start = int(np.random.randint(0, len(motion) - length + 1))
             motion = motion[start: start + length]
-        text_entry = item["captions"][int(np.random.randint(0, len(item["captions"])))]
+        if self.mode == "eval_fixed":
+            text_entry = item["captions"][0]
+        else:
+            text_entry = item["captions"][int(np.random.randint(0, len(item["captions"])))]
         caption, tokens = text_entry["caption"], text_entry["tokens"]
         if self.hash_text:
             embeddings, mask = hashed_token_sequence(caption, self.text_dim)

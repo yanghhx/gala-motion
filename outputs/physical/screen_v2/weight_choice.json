@@ -1,0 +1,75 @@
+{
+  "baseline": {
+    "name": "a3_s4000",
+    "FID": 0.41925510987776704,
+    "R@1": 0.45,
+    "R@2": 0.68125,
+    "R@3": 0.765625,
+    "MM Dist": 3.0981388092041016,
+    "Diversity": 9.564495086669922,
+    "physical/foot_skating": 0.0014301830728072674,
+    "physical/acceleration": 0.004298764863051474,
+    "physical/acceleration_magnitude": 0.005187872657552361
+  },
+  "acc": {
+    "chosen": "acc_adaptive_r015_s10000",
+    "metric": "physical/acceleration",
+    "value": 0.00420839583966881,
+    "FID": 0.5062578907336359,
+    "R@3": 0.725,
+    "quality_gate_passed": false,
+    "acc_over_flow": null,
+    "skate_over_flow": null,
+    "candidates": [
+      {
+        "name": "acc_adaptive_r015_s10000",
+        "FID": 0.5062578907336359,
+        "R@3": 0.725,
+        "physical/acceleration": 0.00420839583966881,
+        "physical/foot_skating": 0.0013397902832366527,
+        "physical/acceleration_magnitude": 0.005003313114866614,
+        "gated": false
+      },
+      {
+        "name": "acc_adaptive_r025_s10000",
+        "FID": 0.60915198383384,
+        "R@3": 0.7375,
+        "physical/acceleration": 0.0042156036477535965,
+        "physical/foot_skating": 0.0013824178371578456,
+        "physical/acceleration_magnitude": 0.00500486702658236,
+        "gated": false
+      }
+    ]
+  },
+  "skate": {
+    "chosen": "skate_adaptive_r025_s10000",
+    "metric": "physical/foot_skating",
+    "value": 0.00025374014585395345,
+    "FID": 2.679051571731037,
+    "R@3": 0.66875,
+    "quality_gate_passed": false,
+    "acc_over_flow": null,
+    "skate_over_flow": null,
+    "candidates": [
+      {
+        "name": "skate_adaptive_r015_s10000",
+        "FID": 1.6561479552261034,
+        "R@3": 0.690625,
+        "physical/acceleration": 0.003819017391651869,
+        "physical/foot_skating": 0.00043044992635259404,
+        "physical/acceleration_magnitude": 0.0037142670480534434,
+        "gated": false
+      },
+      {
+        "name": "skate_adaptive_r025_s10000",
+        "FID": 2.679051571731037,
+        "R@3": 0.66875,
+        "physical/acceleration": 0.0037198665319010614,
+        "physical/foot_skating": 0.00025374014585395345,
+        "physical/acceleration_magnitude": 0.0033137358026579023,
+        "gated": false
+      }
+    ]
+  },
+  "note": "Main table uses paired physical/acceleration, not acceleration_magnitude. Skating is GT-contact-conditioned generated foot displacement."
+}

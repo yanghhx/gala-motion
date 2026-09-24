@@ -1,0 +1,1930 @@
+{
+  "split": "val",
+  "mode": "eval_fixed",
+  "seed": 3407,
+  "max_samples": 320,
+  "nfe": 20,
+  "guidance": 2.5,
+  "items": [
+    {
+      "id": "012698",
+      "start": 0,
+      "end": 193,
+      "caption": "person has arms extended to side of body shoulder height then moves both hands into centre and holds together"
+    },
+    {
+      "id": "012808",
+      "start": 0,
+      "end": 199,
+      "caption": "a person raises their hands above their heads, rotates their torso side to side, stretches side to side, and then stretches back and forth."
+    },
+    {
+      "id": "013022",
+      "start": 0,
+      "end": 140,
+      "caption": "the person is dancing the salsa."
+    },
+    {
+      "id": "003172",
+      "start": 0,
+      "end": 199,
+      "caption": "a standing man does rolli polli with his hands in the air then do basket ball dribble action and then moves right hand towards his left hand back and fro"
+    },
+    {
+      "id": "008859",
+      "start": 0,
+      "end": 184,
+      "caption": "a person gets down on their hands and knees and crawls around, then gets back up."
+    },
+    {
+      "id": "005095",
+      "start": 0,
+      "end": 69,
+      "caption": "a person walks in a forward motion"
+    },
+    {
+      "id": "012044",
+      "start": 0,
+      "end": 154,
+      "caption": "person is walking in a circle"
+    },
+    {
+      "id": "002345",
+      "start": 0,
+      "end": 199,
+      "caption": "person walks forward at a consistent, moderate pace."
+    },
+    {
+      "id": "008039",
+      "start": 0,
+      "end": 56,
+      "caption": "the man is boxing upwards"
+    },
+    {
+      "id": "006393",
+      "start": 0,
+      "end": 162,
+      "caption": "a person is turning to the left side"
+    },
+    {
+      "id": "006353",
+      "start": 0,
+      "end": 199,
+      "caption": "a person communicates by using their hands"
+    },
+    {
+      "id": "008496",
+      "start": 0,
+      "end": 78,
+      "caption": "a person raise both their hands and claps."
+    },
+    {
+      "id": "006516",
+      "start": 0,
+      "end": 199,
+      "caption": "the person was drying his right arm."
+    },
+    {
+      "id": "011782",
+      "start": 0,
+      "end": 45,
+      "caption": "the man takes one hop into the air."
+    },
+    {
+      "id": "001798",
+      "start": 0,
+      "end": 160,
+      "caption": "person carefully takes two steps backwards."
+    },
+    {
+      "id": "001798",
+      "start": 0,
+      "end": 161,
+      "caption": "person turns body slightly and moves backwards"
+    },
+    {
+      "id": "001426",
+      "start": 0,
+      "end": 199,
+      "caption": "a figure walks to diagonal to the left turns around an walks up to the right and then back to quarter to the forward."
+    },
+    {
+      "id": "006016",
+      "start": 0,
+      "end": 181,
+      "caption": "the person pick some thing up and tilted it on its side."
+    },
+    {
+      "id": "001874",
+      "start": 0,
+      "end": 45,
+      "caption": "a man moves his arms by his sides."
+    },
+    {
+      "id": "005876",
+      "start": 0,
+      "end": 180,
+      "caption": "person slides to the right."
+    },
+    {
+      "id": "006834",
+      "start": 0,
+      "end": 90,
+      "caption": "a man shrugs both shoulders."
+    },
+    {
+      "id": "004792",
+      "start": 0,
+      "end": 65,
+      "caption": "a person stumbles backward without falling."
+    },
+    {
+      "id": "013926",
+      "start": 0,
+      "end": 199,
+      "caption": "the person puts the groceries on the shelf"
+    },
+    {
+      "id": "003470",
+      "start": 0,
+      "end": 124,
+      "caption": "a person kneels down onto the floor."
+    },
+    {
+      "id": "005441",
+      "start": 0,
+      "end": 110,
+      "caption": "the man is jogging on the spot"
+    },
+    {
+      "id": "000510",
+      "start": 0,
+      "end": 91,
+      "caption": "a person standing up indicates somthing on his left with his right arm."
+    },
+    {
+      "id": "005109",
+      "start": 0,
+      "end": 197,
+      "caption": "a person sits down on the ground then stands back up"
+    },
+    {
+      "id": "013358",
+      "start": 0,
+      "end": 77,
+      "caption": "a person stretches their right arm then their left."
+    },
+    {
+      "id": "004152",
+      "start": 0,
+      "end": 199,
+      "caption": "the man stands slightly bent at the waist holding something in his right hand and using his left hand to touch it repeatedly oh, then takes a side step to the left."
+    },
+    {
+      "id": "012332",
+      "start": 0,
+      "end": 163,
+      "caption": "a person walks and lifts something up to move it"
+    },
+    {
+      "id": "012136",
+      "start": 0,
+      "end": 119,
+      "caption": "walking forward and then back."
+    },
+    {
+      "id": "013212",
+      "start": 0,
+      "end": 199,
+      "caption": "moving arms in a random pattern."
+    },
+    {
+      "id": "001297",
+      "start": 0,
+      "end": 199,
+      "caption": "the person grabs something above then, then shimmies to the right, then searches for something"
+    },
+    {
+      "id": "003229",
+      "start": 0,
+      "end": 199,
+      "caption": "the person took a diagonal step forward and then just stood still."
+    },
+    {
+      "id": "003621",
+      "start": 0,
+      "end": 199,
+      "caption": "a person lifts things from low in front of them with their right arm and places the things on the left and right hand side."
+    },
+    {
+      "id": "012065",
+      "start": 0,
+      "end": 199,
+      "caption": "shaking the hands some thing on the hands."
+    },
+    {
+      "id": "008433",
+      "start": 0,
+      "end": 69,
+      "caption": "a person waves with left arm, then right arm"
+    },
+    {
+      "id": "000803",
+      "start": 0,
+      "end": 102,
+      "caption": "a person lifts up only their left arm above shoulder height, lowers their left arm and lifts up both arms above shoulder height, lowers both arms and then lifts as high as they can before bringing both arms back down to shoulder height."
+    },
+    {
+      "id": "006230",
+      "start": 0,
+      "end": 199,
+      "caption": "person makes motion such as lifting from the lower left side to the right side then back again."
+    },
+    {
+      "id": "010018",
+      "start": 0,
+      "end": 199,
+      "caption": "the person is acting like a monkey."
+    },
+    {
+      "id": "001742",
+      "start": 0,
+      "end": 99,
+      "caption": "a person kicks with their right leg, does a jig with both feet, and slides forward and kicks with each foot."
+    },
+    {
+      "id": "004469",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks slowly in place without moving."
+    },
+    {
+      "id": "007558",
+      "start": 0,
+      "end": 61,
+      "caption": "a person claps their hands together."
+    },
+    {
+      "id": "000783",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks slowly hunched over to the right."
+    },
+    {
+      "id": "011622",
+      "start": 0,
+      "end": 199,
+      "caption": "a person is leaping a few feet, turning direction, then leaping another few feet."
+    },
+    {
+      "id": "012188",
+      "start": 0,
+      "end": 176,
+      "caption": "a person drags his left leg while crossing his right leg over it and then waivers crossing right over left and somewhat backwards."
+    },
+    {
+      "id": "009055",
+      "start": 0,
+      "end": 155,
+      "caption": "the person is doing a fat kick lunge"
+    },
+    {
+      "id": "007732",
+      "start": 0,
+      "end": 49,
+      "caption": "this person appears to be fighting."
+    },
+    {
+      "id": "014273",
+      "start": 0,
+      "end": 199,
+      "caption": "a person turns to the left, walks forward, steps back and picks something up off the ground."
+    },
+    {
+      "id": "008539",
+      "start": 0,
+      "end": 174,
+      "caption": "a person squatting slightly , then lifting both right and left arms above them."
+    },
+    {
+      "id": "009750",
+      "start": 0,
+      "end": 199,
+      "caption": "man moves quickly around in a funny way"
+    },
+    {
+      "id": "013260",
+      "start": 0,
+      "end": 64,
+      "caption": "a person walks forward carefully, placing one foot in front of the other in a line, almost loses his balance, but recovers and keeps walking."
+    },
+    {
+      "id": "000645",
+      "start": 0,
+      "end": 199,
+      "caption": "man stands up from the ground and begins pretending to throw an object, then proceeds to shoot an air basketball."
+    },
+    {
+      "id": "014290",
+      "start": 0,
+      "end": 84,
+      "caption": "the person stomping with his right foot."
+    },
+    {
+      "id": "014112",
+      "start": 0,
+      "end": 199,
+      "caption": "the person is pouring out of a bottle."
+    },
+    {
+      "id": "008576",
+      "start": 0,
+      "end": 114,
+      "caption": "a person jumps up one time."
+    },
+    {
+      "id": "007297",
+      "start": 0,
+      "end": 199,
+      "caption": "a person swings left arm in a windmill fashion; first clockwise then counter clockwise."
+    },
+    {
+      "id": "011751",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks in a counter clockwise circle."
+    },
+    {
+      "id": "010162",
+      "start": 0,
+      "end": 172,
+      "caption": "a person slowly walked forward and grabbed something with right hand"
+    },
+    {
+      "id": "006504",
+      "start": 0,
+      "end": 60,
+      "caption": "from a standstill position, a person seems to make the motion of throwing a ball with their right hand."
+    },
+    {
+      "id": "006504",
+      "start": 0,
+      "end": 64,
+      "caption": "a person throws something with their right arm."
+    },
+    {
+      "id": "013804",
+      "start": 0,
+      "end": 199,
+      "caption": "dancing link barathanatiyam on the floor."
+    },
+    {
+      "id": "008734",
+      "start": 0,
+      "end": 79,
+      "caption": "a person bows slighly once."
+    },
+    {
+      "id": "012225",
+      "start": 0,
+      "end": 199,
+      "caption": "the person was missing something with his right hand."
+    },
+    {
+      "id": "004974",
+      "start": 0,
+      "end": 199,
+      "caption": "a person stretches, placing most of their weight on one leg bent at the knee, holds this pose for several seconds, swivels around and crouches."
+    },
+    {
+      "id": "004616",
+      "start": 0,
+      "end": 160,
+      "caption": "a person walks with an odd gait, forward, and slightly to the left."
+    },
+    {
+      "id": "004616",
+      "start": 0,
+      "end": 170,
+      "caption": "a person walks down the stairs."
+    },
+    {
+      "id": "001995",
+      "start": 0,
+      "end": 40,
+      "caption": "a person brings their arms down"
+    },
+    {
+      "id": "001995",
+      "start": 0,
+      "end": 199,
+      "caption": "arms are placed down by the side from being straight out and then the right hand goes out making a random jabbing spots."
+    },
+    {
+      "id": "007124",
+      "start": 0,
+      "end": 63,
+      "caption": "a person sidesteps to their left and moves their right hand as if writing something on a chalkboard."
+    },
+    {
+      "id": "000966",
+      "start": 0,
+      "end": 199,
+      "caption": "a man sways side by side and back and forth in a defensive stance."
+    },
+    {
+      "id": "000918",
+      "start": 0,
+      "end": 102,
+      "caption": "a person brings his right arm to his face."
+    },
+    {
+      "id": "001077",
+      "start": 0,
+      "end": 199,
+      "caption": "this person begins to run forward in a counterclockwise circle, and then, they quickly turn around to run in a clockwise circle."
+    },
+    {
+      "id": "009058",
+      "start": 0,
+      "end": 83,
+      "caption": "someone jumps into the air and does spinning twist in the air."
+    },
+    {
+      "id": "001305",
+      "start": 0,
+      "end": 199,
+      "caption": "he walks then shuffles his leg"
+    },
+    {
+      "id": "007062",
+      "start": 0,
+      "end": 194,
+      "caption": "the person is wiping his leg"
+    },
+    {
+      "id": "005895",
+      "start": 0,
+      "end": 100,
+      "caption": "a person walks forward, leans down to pick something up with their right hand, and then unscrews the lid"
+    },
+    {
+      "id": "005895",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks a step, bends, grabs something with his right hand, turns to his left, takes a half-step, bends and grabs something with his left hand, takes a quarter-turn and begins polishing or cleaning something."
+    },
+    {
+      "id": "011577",
+      "start": 0,
+      "end": 60,
+      "caption": "the sim raises their right arm, before bring it back to their waste."
+    },
+    {
+      "id": "011577",
+      "start": 0,
+      "end": 66,
+      "caption": "a person lifts their right hand."
+    },
+    {
+      "id": "007751",
+      "start": 0,
+      "end": 65,
+      "caption": "it appears as if a walking person trips over something or missteps with their right foot."
+    },
+    {
+      "id": "005336",
+      "start": 0,
+      "end": 199,
+      "caption": "a person holds an object against their side with their left hand, walks quickly forward, turns around, and slowly walks back in the opposite direction."
+    },
+    {
+      "id": "004513",
+      "start": 0,
+      "end": 107,
+      "caption": "a man moves fowards and staggers to the left side  and then moves fowards making a s shape."
+    },
+    {
+      "id": "014313",
+      "start": 0,
+      "end": 177,
+      "caption": "someone is stretching their arms up to the front and up on their side."
+    },
+    {
+      "id": "010464",
+      "start": 0,
+      "end": 129,
+      "caption": "a man bends down,lowers his right hand to grabs something for support ,kneels down with both legs and then puts it aside."
+    },
+    {
+      "id": "008758",
+      "start": 0,
+      "end": 199,
+      "caption": "a person raisedthe hands and put it down"
+    },
+    {
+      "id": "005487",
+      "start": 0,
+      "end": 199,
+      "caption": "a stick figure casually walks in an s figure"
+    },
+    {
+      "id": "002590",
+      "start": 0,
+      "end": 140,
+      "caption": "a person walks right, then left, then right again, facing perpendicular to their walking dorection and crossing over their feet with each stride."
+    },
+    {
+      "id": "007627",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks in a figure of eight to the left."
+    },
+    {
+      "id": "011576",
+      "start": 0,
+      "end": 121,
+      "caption": "a person walks forward, then rapidly moves to the right, as though hit by something."
+    },
+    {
+      "id": "007245",
+      "start": 20,
+      "end": 60,
+      "caption": "what seems to be a man half red and blue lifts op his right arm which red and then raises his right arm blue to make the motion of shooting a basketball"
+    },
+    {
+      "id": "007245",
+      "start": 0,
+      "end": 58,
+      "caption": "a person holds both hands together over their right shoulder, then brings them both down."
+    },
+    {
+      "id": "001401",
+      "start": 0,
+      "end": 66,
+      "caption": "a person takes a very large step diagonally."
+    },
+    {
+      "id": "012187",
+      "start": 0,
+      "end": 90,
+      "caption": "a man holds his hands together in front of his chest, before dancing forward and moving his hands in small circles in front of his body."
+    },
+    {
+      "id": "012187",
+      "start": 0,
+      "end": 199,
+      "caption": "the person is doing the salsa dance."
+    },
+    {
+      "id": "004149",
+      "start": 0,
+      "end": 70,
+      "caption": "a person sidesteps once to the right."
+    },
+    {
+      "id": "002797",
+      "start": 0,
+      "end": 132,
+      "caption": "a person walking fast down stairs."
+    },
+    {
+      "id": "010360",
+      "start": 0,
+      "end": 199,
+      "caption": "the person is sparring with someone."
+    },
+    {
+      "id": "013529",
+      "start": 0,
+      "end": 160,
+      "caption": "person facing forward gently jumps up and down."
+    },
+    {
+      "id": "013529",
+      "start": 0,
+      "end": 165,
+      "caption": "a perosn jumps up 12 times and then stands with feet and arms stretched apart"
+    },
+    {
+      "id": "000139",
+      "start": 0,
+      "end": 163,
+      "caption": "a person stands facing down the path, casually swaying for a moment then proceeds to walk a few steps forward, swinging its arms casually."
+    },
+    {
+      "id": "002566",
+      "start": 0,
+      "end": 199,
+      "caption": "the person picks up a phone with their left hand and holds it to their left ear."
+    },
+    {
+      "id": "011667",
+      "start": 0,
+      "end": 181,
+      "caption": "the person is walking in a circle counterclockwise."
+    },
+    {
+      "id": "002359",
+      "start": 0,
+      "end": 115,
+      "caption": "a person turns and leans to the right, then does a left leg kickboxing style kick."
+    },
+    {
+      "id": "002735",
+      "start": 0,
+      "end": 199,
+      "caption": "the person moves their left hand to their mouth, as they place their hand down, they move the other hand to their mouth."
+    },
+    {
+      "id": "000264",
+      "start": 0,
+      "end": 199,
+      "caption": "a man drops to the ground and begins crawling on his knees, first to the right, then to the left."
+    },
+    {
+      "id": "004809",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks in a loop in a sort of wobbly fashion."
+    },
+    {
+      "id": "013682",
+      "start": 0,
+      "end": 199,
+      "caption": "a person struts around with their hands on their hips."
+    },
+    {
+      "id": "003495",
+      "start": 0,
+      "end": 58,
+      "caption": "a person speed walking in a forward motion"
+    },
+    {
+      "id": "002102",
+      "start": 0,
+      "end": 71,
+      "caption": "a person steps into the shallow end of a pool."
+    },
+    {
+      "id": "010000",
+      "start": 0,
+      "end": 199,
+      "caption": "person has hands on their knees and then brings arms up ."
+    },
+    {
+      "id": "003602",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks to their right creating a half circle and then reverses course to the left and walks in a full circle."
+    },
+    {
+      "id": "007589",
+      "start": 0,
+      "end": 73,
+      "caption": "a person is balling something up with their hands."
+    },
+    {
+      "id": "000807",
+      "start": 0,
+      "end": 82,
+      "caption": "the man does 3 jumping jacks."
+    },
+    {
+      "id": "010565",
+      "start": 0,
+      "end": 199,
+      "caption": "a person is learning to the side"
+    },
+    {
+      "id": "007535",
+      "start": 0,
+      "end": 60,
+      "caption": "stick figure stands still before taking a few jogging steps forward"
+    },
+    {
+      "id": "007535",
+      "start": 0,
+      "end": 84,
+      "caption": "a man walks quickly in a straight line"
+    },
+    {
+      "id": "008635",
+      "start": 0,
+      "end": 53,
+      "caption": "the figure steps back and lifts its left (our right) arm and steps foward without putting it back down."
+    },
+    {
+      "id": "010288",
+      "start": 0,
+      "end": 100,
+      "caption": "a person runs on the spot, while rotating in a circle."
+    },
+    {
+      "id": "006807",
+      "start": 0,
+      "end": 98,
+      "caption": "a person grabbed something with right and left hand and put it somewhere"
+    },
+    {
+      "id": "000211",
+      "start": 0,
+      "end": 156,
+      "caption": "someone walks slowly clockwise in a complete circle and then stops."
+    },
+    {
+      "id": "003946",
+      "start": 0,
+      "end": 199,
+      "caption": "a person spinning his upper core body, and after shaking left and right legs, by doing circle movement"
+    },
+    {
+      "id": "006150",
+      "start": 0,
+      "end": 199,
+      "caption": "the person stands still and shuffles their feet for a little."
+    },
+    {
+      "id": "000751",
+      "start": 0,
+      "end": 60,
+      "caption": "a man walks to the right and steps over an object."
+    },
+    {
+      "id": "000751",
+      "start": 0,
+      "end": 199,
+      "caption": "walking in an uneven terrain."
+    },
+    {
+      "id": "009933",
+      "start": 0,
+      "end": 199,
+      "caption": "a person squats down to the ground and gets on their knees, placing their hand on their lap, they sit back for a moment then they stand back up and turn around."
+    },
+    {
+      "id": "009230",
+      "start": 0,
+      "end": 154,
+      "caption": "a person steps forward onto a structure with their arms straight out from their sides,  one foot in front of the other as if they trying to balance themselves, then they step off the structure again."
+    },
+    {
+      "id": "004371",
+      "start": 0,
+      "end": 199,
+      "caption": "a man lowers both hands and touches right foot , moves to the right and touches right foot again."
+    },
+    {
+      "id": "004582",
+      "start": 0,
+      "end": 111,
+      "caption": "a person takes two steps forward then turns to the left and takes two more steps."
+    },
+    {
+      "id": "011821",
+      "start": 0,
+      "end": 199,
+      "caption": "a person picks up something next to his body with each hand, does a washing motion with his right hand, then replaces the things with each hand."
+    },
+    {
+      "id": "010863",
+      "start": 0,
+      "end": 40,
+      "caption": "the person is standing and lifting something in their right hand."
+    },
+    {
+      "id": "010863",
+      "start": 0,
+      "end": 40,
+      "caption": "a person lifting a weight with left arm."
+    },
+    {
+      "id": "007452",
+      "start": 0,
+      "end": 199,
+      "caption": "someone seems to enter carefully so as not to make noise"
+    },
+    {
+      "id": "007599",
+      "start": 0,
+      "end": 199,
+      "caption": "a person is clapping their hands above their head, lowers their arms and extends them out to the sides, then brings both hands toward their stomach."
+    },
+    {
+      "id": "013015",
+      "start": 0,
+      "end": 82,
+      "caption": "man walks forwards and turns counter clockwise and walks back"
+    },
+    {
+      "id": "002558",
+      "start": 0,
+      "end": 199,
+      "caption": "a person limps forward while holding his side."
+    },
+    {
+      "id": "004972",
+      "start": 0,
+      "end": 199,
+      "caption": "a person looks to their left and places their hands on their hips."
+    },
+    {
+      "id": "004786",
+      "start": 0,
+      "end": 54,
+      "caption": "the person is jogging lightly"
+    },
+    {
+      "id": "005574",
+      "start": 0,
+      "end": 199,
+      "caption": "a person sits on a chair and leans back, relaxing and folding their legs."
+    },
+    {
+      "id": "010921",
+      "start": 0,
+      "end": 199,
+      "caption": "a person crosses one foot over the other in order to walk in a circle and then spins around."
+    },
+    {
+      "id": "009352",
+      "start": 0,
+      "end": 199,
+      "caption": "a person is head banging"
+    },
+    {
+      "id": "012696",
+      "start": 0,
+      "end": 105,
+      "caption": "a man starts from a standing position and seems to kick something with his right leg."
+    },
+    {
+      "id": "012477",
+      "start": 0,
+      "end": 82,
+      "caption": "a man jumps with arms loosely at his side."
+    },
+    {
+      "id": "010711",
+      "start": 0,
+      "end": 199,
+      "caption": "crawling around then jumping up and running."
+    },
+    {
+      "id": "006595",
+      "start": 20,
+      "end": 200,
+      "caption": "a man rowing from left to right in a canooe"
+    },
+    {
+      "id": "006595",
+      "start": 0,
+      "end": 199,
+      "caption": "a figure unclasps their hands then smells their right armpit then perhaps paddles a boat?"
+    },
+    {
+      "id": "006634",
+      "start": 0,
+      "end": 125,
+      "caption": "a person slowly walked forward"
+    },
+    {
+      "id": "012615",
+      "start": 0,
+      "end": 199,
+      "caption": "the man picjs something up looks at it them puts it back down."
+    },
+    {
+      "id": "001627",
+      "start": 0,
+      "end": 110,
+      "caption": "a standing up person bends down and gets back up."
+    },
+    {
+      "id": "013431",
+      "start": 0,
+      "end": 184,
+      "caption": "a person is taking wide steps back and forth."
+    },
+    {
+      "id": "007635",
+      "start": 0,
+      "end": 120,
+      "caption": "the person just did a ballet twirl."
+    },
+    {
+      "id": "009125",
+      "start": 0,
+      "end": 199,
+      "caption": "a person claps, walks forward and then sits down."
+    },
+    {
+      "id": "011249",
+      "start": 0,
+      "end": 199,
+      "caption": "the person is walking holding  his arms."
+    },
+    {
+      "id": "010978",
+      "start": 0,
+      "end": 199,
+      "caption": "a man walks diagonally across a rectangle on the ground and then walks half way to his starting position."
+    },
+    {
+      "id": "011396",
+      "start": 0,
+      "end": 199,
+      "caption": "a person who seems to be sitting down"
+    },
+    {
+      "id": "012795",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks backwards diagonally to the left, then walks forward diagonly snapp the fingers on their right hand. the person the shakes their shoulders and returns to the original position.."
+    },
+    {
+      "id": "007263",
+      "start": 0,
+      "end": 199,
+      "caption": "a person gives high fives."
+    },
+    {
+      "id": "010601",
+      "start": 0,
+      "end": 199,
+      "caption": "a figure walks forward to the left then turns back and seems to place something on a shelf"
+    },
+    {
+      "id": "000859",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks swaying side to side walking in a slow circle then veering upwards at the end."
+    },
+    {
+      "id": "004489",
+      "start": 0,
+      "end": 46,
+      "caption": "person runs a third of a circle clockwise"
+    },
+    {
+      "id": "003036",
+      "start": 0,
+      "end": 176,
+      "caption": "someone is hitting his drums."
+    },
+    {
+      "id": "005816",
+      "start": 0,
+      "end": 60,
+      "caption": "the person was pushed to the left but did not fall."
+    },
+    {
+      "id": "011199",
+      "start": 0,
+      "end": 86,
+      "caption": "a persons begins to run forward slightly to their right"
+    },
+    {
+      "id": "008506",
+      "start": 0,
+      "end": 121,
+      "caption": "character raises hands slowly to stetch their back while leaning left and right."
+    },
+    {
+      "id": "008199",
+      "start": 0,
+      "end": 199,
+      "caption": "the person was hammering a nail"
+    },
+    {
+      "id": "010308",
+      "start": 0,
+      "end": 199,
+      "caption": "he starts digging a hole"
+    },
+    {
+      "id": "000550",
+      "start": 0,
+      "end": 115,
+      "caption": "a person walks forward, then strafes sideways."
+    },
+    {
+      "id": "010275",
+      "start": 0,
+      "end": 100,
+      "caption": "a person walks up and then turns around and walk\\s back."
+    },
+    {
+      "id": "004387",
+      "start": 0,
+      "end": 81,
+      "caption": "the man jogs forward 4 steps."
+    },
+    {
+      "id": "004363",
+      "start": 0,
+      "end": 105,
+      "caption": "a person squats down, bending at the knees and extending their arms."
+    },
+    {
+      "id": "010401",
+      "start": 0,
+      "end": 199,
+      "caption": "a person slowly lowers his arms, claps then walks forward to sit on a chair with his arms behind his head."
+    },
+    {
+      "id": "010378",
+      "start": 0,
+      "end": 156,
+      "caption": "a person walks in a circle clockwise."
+    },
+    {
+      "id": "013262",
+      "start": 0,
+      "end": 119,
+      "caption": "a person squats then stands back up."
+    },
+    {
+      "id": "004420",
+      "start": 0,
+      "end": 120,
+      "caption": "a man walks forward in the direction of the viewer, taking three slow steps."
+    },
+    {
+      "id": "004420",
+      "start": 0,
+      "end": 126,
+      "caption": "person walking forward slowly leading with the right foot."
+    },
+    {
+      "id": "014426",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks backwards with right leg first"
+    },
+    {
+      "id": "000989",
+      "start": 0,
+      "end": 68,
+      "caption": "the person is excercising with weights."
+    },
+    {
+      "id": "012951",
+      "start": 0,
+      "end": 64,
+      "caption": "a person lifts their left wrist towards their face as if to look at a watch"
+    },
+    {
+      "id": "014047",
+      "start": 0,
+      "end": 154,
+      "caption": "a person climbs the stairs while holding the hand rail"
+    },
+    {
+      "id": "003756",
+      "start": 0,
+      "end": 80,
+      "caption": "a person lunges forward and plants their hands on the floor, swinging their legs above them and lands on their feet."
+    },
+    {
+      "id": "011387",
+      "start": 0,
+      "end": 110,
+      "caption": "a person moving left arm up and the right arm up and then kicks right leg up and then return to position."
+    },
+    {
+      "id": "006142",
+      "start": 0,
+      "end": 186,
+      "caption": "person walks forward and sits on high chair"
+    },
+    {
+      "id": "014568",
+      "start": 0,
+      "end": 199,
+      "caption": "a person, standing with both arms resting at their sides and slightly bent at the elbow, moves around seeming to look for something."
+    },
+    {
+      "id": "008454",
+      "start": 0,
+      "end": 87,
+      "caption": "a person transitions from an open pose to a closed off pose"
+    },
+    {
+      "id": "007691",
+      "start": 0,
+      "end": 199,
+      "caption": "a person is walking backwards."
+    },
+    {
+      "id": "012810",
+      "start": 0,
+      "end": 140,
+      "caption": "the body squats, steps to its right, and squats again"
+    },
+    {
+      "id": "012810",
+      "start": 0,
+      "end": 149,
+      "caption": "a person does a squat, widens their stance by moving their right foot out, then performs a second squat."
+    },
+    {
+      "id": "011021",
+      "start": 0,
+      "end": 169,
+      "caption": "the person ducked to avoid being hit by some thing that was flying."
+    },
+    {
+      "id": "002891",
+      "start": 0,
+      "end": 191,
+      "caption": "a person carefully walks forwards, before lifting their right leg high over an obstacle, then their left leg, and walks forwards."
+    },
+    {
+      "id": "004308",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks to their front left a few steps, raises their right arm and hand, as if reaching for and grabbing something from a height, and then, having obtained the object turns around and walks back to the point of origin."
+    },
+    {
+      "id": "006848",
+      "start": 0,
+      "end": 143,
+      "caption": "a person walks forward then turns around and walks back."
+    },
+    {
+      "id": "000730",
+      "start": 0,
+      "end": 74,
+      "caption": "a person moves ahead a few steps quickly."
+    },
+    {
+      "id": "011592",
+      "start": 0,
+      "end": 140,
+      "caption": "a man has his arms out to his sides then brings his hands towards his face"
+    },
+    {
+      "id": "011592",
+      "start": 0,
+      "end": 144,
+      "caption": "person put his left arm down on his right arm down and put his hands together."
+    },
+    {
+      "id": "000814",
+      "start": 0,
+      "end": 96,
+      "caption": "a person runs with wide spread legs"
+    },
+    {
+      "id": "004924",
+      "start": 0,
+      "end": 64,
+      "caption": "person is walking down."
+    },
+    {
+      "id": "011220",
+      "start": 0,
+      "end": 70,
+      "caption": "person loses balance and regains it quickly"
+    },
+    {
+      "id": "002636",
+      "start": 0,
+      "end": 199,
+      "caption": "person is walking forward than getting something."
+    },
+    {
+      "id": "014146",
+      "start": 0,
+      "end": 146,
+      "caption": "walking forwards and backwards in a line."
+    },
+    {
+      "id": "007654",
+      "start": 0,
+      "end": 102,
+      "caption": "a person veers to the right while walking."
+    },
+    {
+      "id": "012051",
+      "start": 0,
+      "end": 73,
+      "caption": "person walked and then started running."
+    },
+    {
+      "id": "005361",
+      "start": 0,
+      "end": 87,
+      "caption": "a person walks forward several steps."
+    },
+    {
+      "id": "004911",
+      "start": 0,
+      "end": 190,
+      "caption": "a person bends their arms at the elbows and paws at their face"
+    },
+    {
+      "id": "013010",
+      "start": 0,
+      "end": 199,
+      "caption": "a person raised the hands and sit on something"
+    },
+    {
+      "id": "013136",
+      "start": 0,
+      "end": 102,
+      "caption": "a person walking and then taking a right turn"
+    },
+    {
+      "id": "012946",
+      "start": 0,
+      "end": 53,
+      "caption": "a person jumps up once and stops"
+    },
+    {
+      "id": "009102",
+      "start": 0,
+      "end": 199,
+      "caption": "a man gets on his knees and crawls to the the right and then to the left."
+    },
+    {
+      "id": "001212",
+      "start": 0,
+      "end": 99,
+      "caption": "a person stands with left foot in front of right, leans the upper body to the right awkwardly, then straightens the upper body."
+    },
+    {
+      "id": "012807",
+      "start": 0,
+      "end": 146,
+      "caption": "a person bending over doing stretches"
+    },
+    {
+      "id": "009751",
+      "start": 0,
+      "end": 170,
+      "caption": "a person hops a couple of times, steps backwards and hops again."
+    },
+    {
+      "id": "012962",
+      "start": 0,
+      "end": 143,
+      "caption": "a person walking in an anti-clockwise circular pattern"
+    },
+    {
+      "id": "003113",
+      "start": 0,
+      "end": 180,
+      "caption": "a person stands still and shifts their weight from one foot to another while looking back and forth."
+    },
+    {
+      "id": "003113",
+      "start": 0,
+      "end": 181,
+      "caption": "a person looks left, then looks right, then confirms left by looking left again."
+    },
+    {
+      "id": "011910",
+      "start": 0,
+      "end": 71,
+      "caption": "a person folds their arms"
+    },
+    {
+      "id": "006974",
+      "start": 0,
+      "end": 96,
+      "caption": "a person turns and looks to the right"
+    },
+    {
+      "id": "002401",
+      "start": 0,
+      "end": 196,
+      "caption": "a person turns to the right and picks up an object with their right hand, lifts it towards their head, then puts it back down."
+    },
+    {
+      "id": "013645",
+      "start": 0,
+      "end": 147,
+      "caption": "the person rotates left and to the right with their arm up, rotates back and to the front while reaching their feet, and puts their arms down."
+    },
+    {
+      "id": "011036",
+      "start": 0,
+      "end": 199,
+      "caption": "the person waves both hands simultaneously"
+    },
+    {
+      "id": "011271",
+      "start": 0,
+      "end": 118,
+      "caption": "a person slowly walked forward and returned"
+    },
+    {
+      "id": "011171",
+      "start": 0,
+      "end": 106,
+      "caption": "person walks forwards, stops, turns to the right, swiveling around, then walks back to the start."
+    },
+    {
+      "id": "006982",
+      "start": 0,
+      "end": 84,
+      "caption": "a person is bouncing up and down lightly."
+    },
+    {
+      "id": "003649",
+      "start": 0,
+      "end": 199,
+      "caption": "robot walking up the stairs, turned back and then walk down the stairs."
+    },
+    {
+      "id": "009103",
+      "start": 0,
+      "end": 100,
+      "caption": "a person who is standing with his arms by his sides takes two steps forward, then quickly steps sideways to his right."
+    },
+    {
+      "id": "000424",
+      "start": 0,
+      "end": 199,
+      "caption": "a person turns around and limps slowly in a straight line then turns around again."
+    },
+    {
+      "id": "005973",
+      "start": 0,
+      "end": 199,
+      "caption": "a person does a stretching maneuver."
+    },
+    {
+      "id": "004861",
+      "start": 20,
+      "end": 160,
+      "caption": "character raises arms out to the side. then reaches down with left hand and kneels on left knee and then both knees."
+    },
+    {
+      "id": "004861",
+      "start": 60,
+      "end": 160,
+      "caption": "a person kneeling down and holding something infront of them, similar to a pew on a church."
+    },
+    {
+      "id": "004861",
+      "start": 0,
+      "end": 162,
+      "caption": "person lifts both hands up and then down, then kneels with the left leg first helping himself with the right hand and then the right leg"
+    },
+    {
+      "id": "008617",
+      "start": 0,
+      "end": 199,
+      "caption": "a person turns to their left then walks and skips with their left foot, then turns around to return and walks then skips with their right foot."
+    },
+    {
+      "id": "001836",
+      "start": 0,
+      "end": 199,
+      "caption": "a person is sitting with one leg crossed, then switches and crosses the other leg."
+    },
+    {
+      "id": "000024",
+      "start": 0,
+      "end": 130,
+      "caption": "person is doing a hand stand"
+    },
+    {
+      "id": "005462",
+      "start": 0,
+      "end": 40,
+      "caption": "the sim appears to be walking at a slight angle at a normal rate of speed."
+    },
+    {
+      "id": "005462",
+      "start": 0,
+      "end": 58,
+      "caption": "taking about 5 or 6 steps forward"
+    },
+    {
+      "id": "001653",
+      "start": 0,
+      "end": 146,
+      "caption": "a person walks to the left and then in a clockwise circle."
+    },
+    {
+      "id": "009043",
+      "start": 0,
+      "end": 199,
+      "caption": "a person sitting on the ground throws something with their right hand and then stands up and does it again."
+    },
+    {
+      "id": "006766",
+      "start": 0,
+      "end": 100,
+      "caption": "a person nearly falls while legs are tied"
+    },
+    {
+      "id": "013710",
+      "start": 0,
+      "end": 109,
+      "caption": "a person walks in a quarter circle clockwise"
+    },
+    {
+      "id": "009516",
+      "start": 0,
+      "end": 79,
+      "caption": "the person walked four steps forward."
+    },
+    {
+      "id": "004052",
+      "start": 0,
+      "end": 50,
+      "caption": "a stick figure does punching  moves starting with right arm."
+    },
+    {
+      "id": "008973",
+      "start": 0,
+      "end": 135,
+      "caption": "the person walks up a hill"
+    },
+    {
+      "id": "003391",
+      "start": 0,
+      "end": 199,
+      "caption": "a person move its right arm and the throws something with its left arm"
+    },
+    {
+      "id": "005702",
+      "start": 0,
+      "end": 199,
+      "caption": "a figure calls to someone in the distance in exasperation"
+    },
+    {
+      "id": "002134",
+      "start": 0,
+      "end": 58,
+      "caption": "a person raises their right hand, to possibly put something in their mouth, then raising the left hand as if to wipe sweat from their brow."
+    },
+    {
+      "id": "007660",
+      "start": 0,
+      "end": 72,
+      "caption": "he starts to strech a lot"
+    },
+    {
+      "id": "014078",
+      "start": 0,
+      "end": 162,
+      "caption": "a person on land is teaching the motions used to swim breast stroke."
+    },
+    {
+      "id": "011270",
+      "start": 0,
+      "end": 192,
+      "caption": "a person uses their left hand to wash a window."
+    },
+    {
+      "id": "006169",
+      "start": 0,
+      "end": 83,
+      "caption": "a person crouching down and jumping forward."
+    },
+    {
+      "id": "005309",
+      "start": 0,
+      "end": 136,
+      "caption": "a person walking very slowly."
+    },
+    {
+      "id": "010699",
+      "start": 0,
+      "end": 184,
+      "caption": "the person sprays a window then wipes the substance off with the other hand."
+    },
+    {
+      "id": "010331",
+      "start": 0,
+      "end": 100,
+      "caption": "a man thrust his shoulders back-and-forth three times in high position and three times in a low position"
+    },
+    {
+      "id": "010331",
+      "start": 0,
+      "end": 77,
+      "caption": "the man exercises both arms by bending them repeatedly."
+    },
+    {
+      "id": "010405",
+      "start": 0,
+      "end": 182,
+      "caption": "a person jogs from side to side, before stopping in the middle."
+    },
+    {
+      "id": "000387",
+      "start": 40,
+      "end": 100,
+      "caption": "a person scratches their aim"
+    },
+    {
+      "id": "000387",
+      "start": 0,
+      "end": 152,
+      "caption": "person lifts item, tilts it halfway up and then places it back down."
+    },
+    {
+      "id": "011962",
+      "start": 0,
+      "end": 82,
+      "caption": "moving arms left and right slowly."
+    },
+    {
+      "id": "011561",
+      "start": 0,
+      "end": 158,
+      "caption": "a person sitting with their arms raised moves their arms up and down in a circular motion."
+    },
+    {
+      "id": "013397",
+      "start": 0,
+      "end": 199,
+      "caption": "a person doing standing crunches and squats"
+    },
+    {
+      "id": "003315",
+      "start": 0,
+      "end": 75,
+      "caption": "the motion seems similar to an axel twist in ice skating"
+    },
+    {
+      "id": "008995",
+      "start": 0,
+      "end": 199,
+      "caption": "person person walk in took a big jump."
+    },
+    {
+      "id": "014362",
+      "start": 0,
+      "end": 77,
+      "caption": "this person stands still and raises both hands above his head."
+    },
+    {
+      "id": "008817",
+      "start": 0,
+      "end": 199,
+      "caption": "a person who seems to be mixing two different substances"
+    },
+    {
+      "id": "000531",
+      "start": 0,
+      "end": 68,
+      "caption": "a man moves his hands in front of his face."
+    },
+    {
+      "id": "010729",
+      "start": 0,
+      "end": 70,
+      "caption": "the oerson is performing a washing movement with their left arm"
+    },
+    {
+      "id": "013076",
+      "start": 0,
+      "end": 120,
+      "caption": "a man standing on a yoga mat."
+    },
+    {
+      "id": "005874",
+      "start": 0,
+      "end": 199,
+      "caption": "a person holds their hands up from their sides and then slowly makes circles and moves them in and out."
+    },
+    {
+      "id": "003293",
+      "start": 0,
+      "end": 60,
+      "caption": "a man lowers his outstretched hands down to his sides."
+    },
+    {
+      "id": "003293",
+      "start": 0,
+      "end": 199,
+      "caption": "person reaches arms out then takes right arm and points outwards"
+    },
+    {
+      "id": "002130",
+      "start": 0,
+      "end": 186,
+      "caption": "a person is slightly crouched and then raises their arms"
+    },
+    {
+      "id": "007440",
+      "start": 0,
+      "end": 199,
+      "caption": "a person, in a fighting pose, backs up, then punches while moving forward, before backing up and kicking."
+    },
+    {
+      "id": "012429",
+      "start": 0,
+      "end": 199,
+      "caption": "a person uses a run up to throw something"
+    },
+    {
+      "id": "008749",
+      "start": 0,
+      "end": 199,
+      "caption": "the person is putting his hands up straight out to the side and back down again."
+    },
+    {
+      "id": "012420",
+      "start": 0,
+      "end": 147,
+      "caption": "a person walks forward and then backwards."
+    },
+    {
+      "id": "008761",
+      "start": 0,
+      "end": 199,
+      "caption": "person is standing reaches arms upwards, and then reaches arms and body forward"
+    },
+    {
+      "id": "002047",
+      "start": 0,
+      "end": 162,
+      "caption": "a person is standing in one spot while moving the upper part of his body with his hands in a prayer position"
+    },
+    {
+      "id": "013013",
+      "start": 0,
+      "end": 80,
+      "caption": "a person standing in the middle of the screen is jogging in place"
+    },
+    {
+      "id": "013013",
+      "start": 0,
+      "end": 82,
+      "caption": "a person running on a spot"
+    },
+    {
+      "id": "008504",
+      "start": 0,
+      "end": 199,
+      "caption": "a person swings his arms around"
+    },
+    {
+      "id": "014312",
+      "start": 0,
+      "end": 122,
+      "caption": "a person climbs up a set of stairs, turns around, and then walks down the stairs."
+    },
+    {
+      "id": "001771",
+      "start": 0,
+      "end": 135,
+      "caption": "a person is doing a guitar playing motion with their arms then puts their hands down."
+    },
+    {
+      "id": "011670",
+      "start": 0,
+      "end": 190,
+      "caption": "this person with shoulders raised slowly walks from left to right."
+    },
+    {
+      "id": "002107",
+      "start": 0,
+      "end": 196,
+      "caption": "a person is walking down a path moving slight going towards the left side."
+    },
+    {
+      "id": "010713",
+      "start": 0,
+      "end": 199,
+      "caption": "standing still then waving hand."
+    },
+    {
+      "id": "011940",
+      "start": 0,
+      "end": 60,
+      "caption": "a person steps up and sticks their arm out straight"
+    },
+    {
+      "id": "009002",
+      "start": 0,
+      "end": 52,
+      "caption": "he moved his hands inward then outward."
+    },
+    {
+      "id": "013766",
+      "start": 0,
+      "end": 41,
+      "caption": "this person reaches high with both arms."
+    },
+    {
+      "id": "002998",
+      "start": 0,
+      "end": 104,
+      "caption": "a person walking and doing a quarter of a circle to the right side."
+    },
+    {
+      "id": "004801",
+      "start": 0,
+      "end": 108,
+      "caption": "a person gets nudged backwards on their left shoulder."
+    },
+    {
+      "id": "014562",
+      "start": 0,
+      "end": 199,
+      "caption": "the person windmill swings both arms in a vertical motion back and forth while lunging forward, then while lunged they move their hips back to rest on their back foot. at the same time swing their left hand to behind their head eith the right hand still in front of their face."
+    },
+    {
+      "id": "006330",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks backwards with arms slightly out at the sides, turns around and walks backwards back to the starting position."
+    },
+    {
+      "id": "010016",
+      "start": 0,
+      "end": 90,
+      "caption": "a person by using the left hand, lean it to uppercore body"
+    },
+    {
+      "id": "010057",
+      "start": 0,
+      "end": 60,
+      "caption": "a man flapping his arms."
+    },
+    {
+      "id": "011994",
+      "start": 0,
+      "end": 47,
+      "caption": "a person bends and flaps his arms like a bird."
+    },
+    {
+      "id": "004731",
+      "start": 0,
+      "end": 120,
+      "caption": "a person waves with right hand."
+    },
+    {
+      "id": "011956",
+      "start": 0,
+      "end": 115,
+      "caption": "the person is walking and turn left."
+    },
+    {
+      "id": "007034",
+      "start": 0,
+      "end": 199,
+      "caption": "a man takes a few steps forwards, crawls on his hands and knees, then stands up and walks again."
+    },
+    {
+      "id": "004858",
+      "start": 0,
+      "end": 199,
+      "caption": "a man moves knife with his right had while holding something with his left"
+    },
+    {
+      "id": "001666",
+      "start": 0,
+      "end": 199,
+      "caption": "someone walking fast and moving sideways"
+    },
+    {
+      "id": "002839",
+      "start": 0,
+      "end": 194,
+      "caption": "a man picks something up and moves it to the side before putting it back down."
+    },
+    {
+      "id": "003511",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks in a clockwise circle and stops."
+    },
+    {
+      "id": "003898",
+      "start": 0,
+      "end": 166,
+      "caption": "a person walks in a counter clockwise circle while swinging left arm"
+    },
+    {
+      "id": "009088",
+      "start": 0,
+      "end": 199,
+      "caption": "a person walks forward then starts to dance."
+    },
+    {
+      "id": "010329",
+      "start": 0,
+      "end": 45,
+      "caption": "raising hands towards mouth while sitting."
+    },
+    {
+      "id": "012478",
+      "start": 0,
+      "end": 199,
+      "caption": "the person is doing the salsa dance."
+    },
+    {
+      "id": "001539",
+      "start": 0,
+      "end": 68,
+      "caption": "person person put his left arm up like he was looking out a watch."
+    },
+    {
+      "id": "005871",
+      "start": 0,
+      "end": 54,
+      "caption": "a man standing appears to be drumming or hitting something."
+    },
+    {
+      "id": "008895",
+      "start": 0,
+      "end": 75,
+      "caption": "a person jumps up and down two times."
+    },
+    {
+      "id": "002267",
+      "start": 0,
+      "end": 103,
+      "caption": "a person walks to the side horizontally and then back and forth."
+    },
+    {
+      "id": "006574",
+      "start": 0,
+      "end": 157,
+      "caption": "the person is walking in a zig zag ."
+    },
+    {
+      "id": "011132",
+      "start": 0,
+      "end": 199,
+      "caption": "the figure is sitting there is no movement, the legs aren't too food apart but they are a little the arms are resting beside the body as opposed to on top of the thighs."
+    },
+    {
+      "id": "004304",
+      "start": 0,
+      "end": 165,
+      "caption": "a man slowly walks backwards, lifting his feet as if they are stuck in something, before finally stopping."
+    },
+    {
+      "id": "005770",
+      "start": 0,
+      "end": 197,
+      "caption": "a man has his arms extended outwards, then brings them down and back up again"
+    },
+    {
+      "id": "012949",
+      "start": 0,
+      "end": 199,
+      "caption": "a person is using objects/furniture to help them walk in a straight line"
+    },
+    {
+      "id": "014195",
+      "start": 0,
+      "end": 40,
+      "caption": "the sim has their left arm raised, appearing to stretch their body towards their right side."
+    },
+    {
+      "id": "003741",
+      "start": 0,
+      "end": 72,
+      "caption": "a person walks forward diagonally and turns to the right."
+    },
+    {
+      "id": "011754",
+      "start": 0,
+      "end": 60,
+      "caption": "a person walks as they rub their hands together."
+    },
+    {
+      "id": "011754",
+      "start": 0,
+      "end": 199,
+      "caption": "the person makes several motions to warm up."
+    },
+    {
+      "id": "006975",
+      "start": 0,
+      "end": 163,
+      "caption": "walks forward, lifts object, turns around, trips"
+    },
+    {
+      "id": "002800",
+      "start": 0,
+      "end": 133,
+      "caption": "a person is walking down the stairs backwards."
+    },
+    {
+      "id": "003744",
+      "start": 0,
+      "end": 143,
+      "caption": "a person stands on one leg and grabs the opposite ankle to pull their leg back"
+    },
+    {
+      "id": "007136",
+      "start": 0,
+      "end": 199,
+      "caption": "a man has his arms outstretched to either side, before stepping forward, grabbing something with his right arm and then his left, then begins to make brushing or petting motions with his left hand."
+    }
+  ]
+}

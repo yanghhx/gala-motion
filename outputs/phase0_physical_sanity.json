@@ -1,0 +1,52 @@
+{
+  "phase": "0+1",
+  "seed": 3407,
+  "n_val_clips_probed": 32,
+  "gt_contact_ratio_mean": 0.8589599616825581,
+  "gt_contact_ratio_std": 0.20522396832693213,
+  "gt_self_skating_mean": 0.0001072609829401161,
+  "last4_mean": [
+    0.8480542898178101,
+    0.8607356548309326,
+    0.8486138582229614,
+    0.8610649704933167
+  ],
+  "last4_std": [
+    0.35237351059913635,
+    0.35237351059913635,
+    0.35237351059913635,
+    0.35237351059913635
+  ],
+  "new_weights_off_total_matches_old_recipe": true,
+  "losses": {
+    "total": 65.25334167480469,
+    "reconstruction": 1.026064395904541,
+    "kl": 0.003908627200871706,
+    "alignment": 2.6572322845458984,
+    "part": 2.374596357345581,
+    "flow": 63.800262451171875,
+    "bone": 1.8222507238388062,
+    "velocity": 1.1325322389602661,
+    "kin_velocity": 1.1314549446105957,
+    "kin_bone": 1.9363218545913696,
+    "kin_foot": 0.8346942663192749,
+    "kin_acceleration": 0.0,
+    "kin_skating": 0.0,
+    "contact_ratio": 0.0,
+    "weighted_kin_velocity": 0.056572746485471725,
+    "weighted_kin_bone": 0.09681609272956848,
+    "weighted_kin_foot": 0.041734714061021805,
+    "weighted_kin_acceleration": 0.0,
+    "weighted_kin_skating": 0.0
+  },
+  "recover_from_ric_matches_mdm": true,
+  "total_vs_old_recipe_abs_diff": 0.0,
+  "one_step_train": {
+    "config": "configs/gala_humanml3d_flow_physical.yaml",
+    "init_from": "checkpoints/gala_humanml3d_flow_distinct/best.pt",
+    "opt_steps": 1,
+    "epoch_loss": 51.2423,
+    "checkpoint_artifact": "checkpoints/gala_humanml3d_flow_physical/last.pt"
+  },
+  "note": "Synthetic seed-3407 forward with new losses OFF. GT contact stats are from 32 HumanML3D val clips. 1-step train is a sanity dump, not a trained model."
+}

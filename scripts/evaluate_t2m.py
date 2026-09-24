@@ -25,6 +25,7 @@ from evaluation.guo_evaluator import (
     official_replication_metrics,
     summarize_replications,
 )
+from evaluation.kinematics import physical_metrics
 from evaluation.metrics import diversity, frechet_distance, r_precision
 from models.gala_motion import GALAMotion, GALAMotionConfig
 from trainers.train import encode_batch_text
@@ -107,7 +108,9 @@ def beats_target(metrics, experiment_name):
 @torch.no_grad()
 def collect_official(model, loader, device, clip_encoder, guo, generate, steps, guidance, dataset):
     real_motion, gen_motion, texts = [], [], []
+    phys_sums, n_batches = {}, 0
     mean, std = dataset.mean, dataset.std
+    model.set_motion_stats(mean, std)
     for batch in loader:
         motion = batch["motion"].to(device)
         lengths = batch["lengths"].to(device)
@@ -124,7 +127,17 @@ def collect_official(model, loader, device, clip_encoder, guo, generate, steps, 
         real_motion.append(real_emb)
         gen_motion.append(gen_emb)
         texts.append(text_emb)
-    return np.concatenate(real_motion), np.concatenate(gen_motion), np.concatenate(texts)
+        phys = physical_metrics(
+            sampled, motion, lengths, model.cfg.num_joints, mean=mean, std=std,
+            contact_source=getattr(model.cfg, "contact_source", "gt_contact_feature"),
+            height_threshold=getattr(model.cfg, "foot_height_threshold", 0.05),
+            velocity_threshold=getattr(model.cfg, "foot_velocity_threshold", 0.01),
+        )
+        for key, value in phys.items():
+            phys_sums[key] = phys_sums.get(key, 0.0) + value
+        n_batches += 1
+    averaged = {key: total / max(n_batches, 1) for key, total in phys_sums.items()}
+    return np.concatenate(real_motion), np.concatenate(gen_motion), np.concatenate(texts), averaged
 
 
 @torch.no_grad()
@@ -183,18 +196,25 @@ def run_official(model, config, args, device, clip_encoder, guo, generate):
     for replication in range(args.replication_times):
         dataset, loader = make_loader(
             config, args.split, args.batch_size, args.max_samples,
-            hash_text=False, mode="eval", shuffle=True,
+            hash_text=False, mode="eval_fixed" if args.fixed_eval else "eval",
+            shuffle=not args.fixed_eval,
         )
-        real, generated, texts = collect_official(
+        real, generated, texts, phys = collect_official(
             model, loader, device, clip_encoder, guo,
             generate=generate, steps=args.steps, guidance=args.guidance, dataset=dataset,
         )
         metrics = official_replication_metrics(real, generated, texts, batch_size=args.batch_size)
+        metrics.update(phys)
         metrics["replication"] = replication
         print(json.dumps(metrics), flush=True)
         runs.append(metrics)
     summary = summarize_replications(runs)
     summary["replications"] = runs
+    summary["eval_mode"] = "eval_fixed" if args.fixed_eval else "eval"
+    summary["split"] = args.split
+    summary["max_samples"] = args.max_samples
+    summary["nfe"] = args.steps
+    summary["guidance"] = args.guidance
     return summary
 
 
@@ -210,6 +230,7 @@ def main():
     parser.add_argument("--replication-times", type=int, default=20)
     parser.add_argument("--no-generate", action="store_true")
     parser.add_argument("--protocol", choices=["auto", "official", "internal"], default="auto")
+    parser.add_argument("--fixed-eval", action="store_true", help="Deterministic val crop and first caption")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
