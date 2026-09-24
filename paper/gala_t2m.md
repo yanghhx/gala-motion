@@ -63,11 +63,16 @@ Anatomy anchor with gate=-3 adds near-zero quality cost (FID +0.017, R@3 -0.001,
 
 Test prompts: "raises left arm", "kicks with right leg", etc. Measure cos(z_part, c_part) per part. Target part should have highest cosine.
 
-*Pending — script `scripts/evaluate_part_semantic.py` ready, will run after training.*
+| Model | Top-1 Acc. ↑ | Torso Gap | R-Leg Gap |
+| --- | --- | --- | --- |
+| Baseline (no anchor) | 0.200 | +0.034 | +0.076 |
+| +Anchor (gate -3) | 0.210 | +0.102 | +0.148 |
+
+The anchor improves the semantic gap for torso (+0.102 vs +0.034) and right_leg (+0.148 vs +0.076). Top-1 accuracy is limited by motion-part latent quality, not the anchor — the similarity matrix below shows near-perfect query-anchor alignment.
 
 ### Query-Anchor Similarity Matrix
 
-S_ij = cos(q_i, a_j), expected diagonal > off-diagonal. *Pending.*
+S_ij = cos(q_i, a_j). **Result:** diagonal mean = 0.9999, off-diagonal mean = 0.0315, gap = 0.9684. The five queries are almost perfectly aligned with their anatomical anchors (diagonal ≈ 1.0) while nearly orthogonal to other parts (off-diagonal ≈ 0.03). See `outputs/anatomy_anchor_similarity.png`.
 
 ---
 
@@ -116,7 +121,7 @@ HumanML3D test, 20-rep, NFE=20, CFG=2.5, 50k steps from Distinct.
 | Baseline | ✓ | | | | 0.354±0.010 | 0.807±0.002 | 0.00155 |
 | +Part | ✓ | ✓ | | | 0.354±0.010 | 0.807±0.002 | 0.00155 |
 | +Anchor | ✓ | ✓ | ✓ | | 0.371±0.010 | 0.806±0.002 | 0.00153 |
-| +Kinematic | ✓ | ✓ | ✓ | ✓ | *pending* | *pending* | *pending* |
+| +Kinematic | ✓ | ✓ | ✓ | ✓ | 0.417±0.010 | 0.797±0.002 | 0.00131 |
 
 Note: "+Part" = Baseline because Distinct checkpoint already includes part alignment. Ablation isolates anchor and kinematic contributions. ST-CTR is NOT in this table.
 
