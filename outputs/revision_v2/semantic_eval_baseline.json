@@ -1,0 +1,87 @@
+{
+  "overall_top1_accuracy": 0.2,
+  "group_accuracy": {
+    "torso": 0.0,
+    "left_arm": 0.0,
+    "right_arm": 1.0,
+    "left_leg": 0.0,
+    "right_leg": 0.0
+  },
+  "part_mean_cosine_all": {
+    "torso": -0.04564909060485661,
+    "left_arm": -0.2881085032969713,
+    "right_arm": 0.3333182326704264,
+    "left_leg": -0.04335575362667441,
+    "right_leg": -0.09454023942351342
+  },
+  "part_mean_cosine_when_target": {
+    "torso": -0.01859159767627716,
+    "left_arm": -0.358811616897583,
+    "right_arm": 0.3312478005886078,
+    "left_leg": -0.004273762321099639,
+    "right_leg": -0.03404656322672963
+  },
+  "part_mean_cosine_when_nontarget": {
+    "torso": -0.052413463837001475,
+    "left_arm": -0.2704327248968184,
+    "right_arm": 0.333835840690881,
+    "left_leg": -0.05312625145306811,
+    "right_leg": -0.10966365847270935
+  },
+  "semantic_gap": {
+    "torso": 0.033821866160724315,
+    "left_arm": -0.0883788920007646,
+    "right_arm": -0.0025880401022732036,
+    "left_leg": 0.04885248913196847,
+    "right_leg": 0.07561709524597973
+  },
+  "confusion_matrix": [
+    [
+      0,
+      0,
+      20,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      20,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      20,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      20,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      20,
+      0,
+      0
+    ]
+  ],
+  "part_labels": [
+    "torso",
+    "left_arm",
+    "right_arm",
+    "left_leg",
+    "right_leg"
+  ],
+  "num_prompts": 100,
+  "num_unique_prompts": 25,
+  "repeats": 4,
+  "steps": 20,
+  "guidance": 2.5
+}
