@@ -19,7 +19,7 @@
 \maketitle
 
 \begin{abstract}
-Text-to-motion generation must couple language semantics with skeletal kinematics, yet most latent generators use pooled text conditioning or denoise raw poses at high computational cost. Existing methods lack an explicit bridge between skeletal topology, fine-grained body-part semantics, and the generative trajectory. We propose GALA, a framework that establishes this bridge through three contributions. First, a topology-aware CTR graph tokenizer preserves skeletal dependencies in a stride-4 variational autoencoder and exposes five body-part latents (torso, left/right arm, left/right leg). Second, a part-indexed language--motion alignment module in which five fixed-index learnable queries attend to frozen CLIP text tokens and are contrastively supervised by the corresponding graph-pooled body parts, enabling part-level semantic evaluation that pooled-conditioning models cannot support. Third, a kinematic-aware rectified-flow DiT that transports noise to clean latents along a straight ODE trajectory under decoded-space velocity, bone-length, and foot-feature penalties, sampled with only 20--50 Euler steps. Under the official 20-replication protocol, GALA reaches R@3 $0.806$ / FID $0.272$ at 20 NFEs and FID $0.224$ at 50 NFEs on HumanML3D, and R@3 $0.804$ / FID $0.402$ on KIT-ML. GALA emphasizes semantic retrieval accuracy and low-NFE continuous generation; discrete generators such as MoMask retain stronger distributional FID. A supplementary contact-aware skating loss further reduces foot skating by 15\% at a controlled FID cost, exposing a tunable semantic--physical trade-off.
+Text-to-motion generation must couple language semantics with skeletal kinematics, yet most latent generators use pooled text conditioning or denoise raw poses at high computational cost. Existing methods lack an explicit bridge between skeletal topology, fine-grained body-part semantics, and the generative trajectory. We propose GALA, a framework that establishes this bridge through three contributions. First, a topology-aware CTR graph tokenizer preserves skeletal dependencies in a stride-4 variational autoencoder and exposes five body-part latents (torso, left/right arm, left/right leg). Second, a part-indexed language--motion alignment module in which five fixed-index learnable queries attend to frozen CLIP text tokens and are contrastively supervised by the corresponding graph-pooled body parts, enabling part-level semantic evaluation that pooled-conditioning models cannot support. Third, a kinematic-aware rectified-flow DiT that transports noise to clean latents along a straight ODE trajectory under decoded-space velocity, bone-length, and foot-feature penalties, sampled with only 20--50 Euler steps. Under the official 20-replication protocol, GALA reaches R@3 $0.806$ / FID $0.272$ at 20 NFEs and FID $0.224$ at 50 NFEs on HumanML3D, and R@3 $0.804$ / FID $0.402$ on KIT-ML. GALA emphasizes semantic retrieval accuracy and low-NFE continuous generation; discrete generators such as MoMask retain stronger distributional FID. A supplementary contact-aware skating loss further reduces foot skating by 15\% at a controlled FID cost, exposing a tunable semantic--physical trade-off. A fine-grained 100-prompt body-part benchmark reveals that left/right limb grounding remains an open challenge, which we report as a limitation.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -191,7 +191,7 @@ Stage~1 trains the VAE only for 35k steps (effective batch 16, bf16). Stage~2 fr
 
 \textbf{HumanML3D}~\cite{guo2022humanml3d} contains 14{,}616 motion clips with textual annotations. We use the official train/val/test split (13{,}188 / 1{,}470 / 4{,}544 clips). Motion is represented as 263-D Guo features at 20\,fps with maximum length $T=196$ frames. The 22-joint skeleton defines the graph topology. Evaluation is on the 4{,}544-clip test set.
 
-\textbf{KIT-ML}~\cite{plappert2016kit} uses the analogous 251-D, 21-joint feature on the official split. The same Guo/MDM evaluator~\cite{tevet2023mdm} is applied to both datasets. KIT-ML has extremely sparse contact labels (contact ratio $\approx2.0\%$ vs.\ HumanML3D's $85.8\%$), which limits the effectiveness of contact-aware losses on this dataset; we report this as a caveat in Section~\ref{sec:phys}.
+\textbf{KIT-ML}~\cite{plappert2016kit} uses the analogous 251-D, 21-joint feature on the official split. The same Guo/MDM evaluator~\cite{tevet2023mdm} is applied to both datasets. KIT-ML has substantially sparser contact labels under our preprocessing (contact ratio $\approx2.0\%$ vs.\ HumanML3D's $85.8\%$, verified in Section~\ref{sec:phys}), which may reduce the amount of active skating supervision; we use cautious wording rather than a definitive causal attribution.
 
 \subsection{Evaluation Protocol}
 \label{sec:setup-proto}
@@ -322,9 +322,9 @@ Table~\ref{tab:tok} compares equally trained conv, static ST-GCN, and adaptive C
 \toprule
 Tokenizer & R@3 $\uparrow$ & Recon FID $\downarrow$ & MPJPE $\downarrow$ & Bone $\downarrow$ & Vel.\ $\downarrow$ \\
 \midrule
-Conv-VAE & $0.755$ & $0.012$ & $0.105$ & $0.061$ & $0.039$ \\
-ST-GCN-VAE & $0.748$ & $0.003$ & $0.088$ & $0.050$ & $0.038$ \\
-CTR-Graph-VAE & $0.750$ & $0.003$ & $0.080$ & $0.051$ & $0.038$ \\
+Conv-VAE & $0.766$ & $0.012$ & $0.105$ & $0.061$ & $0.039$ \\
+ST-GCN-VAE & $0.763$ & $0.003$ & $0.088$ & $0.050$ & $0.038$ \\
+CTR-Graph-VAE & $0.763$ & $0.003$ & $0.080$ & $0.051$ & $0.038$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -332,31 +332,31 @@ CTR-Graph-VAE & $0.750$ & $0.003$ & $0.080$ & $0.051$ & $0.038$ \\
 \subsection{Fine-Grained Body-Part Semantic Evaluation}
 \label{sec:sem}
 
-To verify that part-indexed alignment enables fine-grained language--body correspondence, we evaluate part semantic consistency on 25 targeted test prompts (5 per body part: ``a person raises their left arm'', ``a person kicks with their right leg'', etc.) repeated 4 times, for 100 total evaluations. For each prompt we generate motion, extract part latents $z_{\text{part}}$ from the generated motion via graph pooling, extract part text tokens $c_{\text{part}}$ from CLIP via the part alignment module, and compute $\cos(z_{\text{part}}, c_{\text{part}})$ per part. The target body part should achieve the highest cosine.
+To verify that part-indexed alignment enables fine-grained language--body correspondence, we evaluate part semantic consistency on \textbf{100 unique test prompts} (20 per body part) covering simple actions, compound actions, and left/right contrasts. Each prompt is generated 4 times with stochastic sampling, for 400 total evaluations, and per-prompt results are averaged before computing metrics. For each prompt we generate motion, extract part latents $z_{\text{part}}$ from the generated motion via graph pooling, extract part text tokens $c_{\text{part}}$ from CLIP via the part alignment module, and compute $\cos(z_{\text{part}}, c_{\text{part}})$ per part. The target body part should achieve the highest cosine.
 
 Pooled-conditioning (Global-only) models lack part queries and cannot be evaluated on this metric---this is the core evidence that part indexing enables fine-grained semantic alignment that pooled conditioning cannot support. We explicitly state this as a limitation of Global-only rather than treating N/A itself as evidence of GALA's superiority.
 
-Table~\ref{tab:sem} reports top-1 accuracy and the semantic gap (mean $\cos(z_p,c_p)$ when part $p$ is the target minus when it is not). Five-way random Top-1 is $20\%$, so $\sim$20\% accuracy should not be described as strong fine-grained discrimination. Left/right performance remains weak; we report this as a limitation in Section~\ref{sec:limit}.
+Table~\ref{tab:sem} reports Top-1 accuracy with bootstrap 95\% CI (1000 resamples over unique prompts), per-part semantic gaps, and left/right contrast accuracy. Five-way random Top-1 is $20\%$, so $\sim$20\% accuracy should not be described as strong fine-grained discrimination.
 
 \begin{table}[t]
 \centering
-\caption{Fine-grained body-part semantic evaluation (25 prompts $\times$ 4 repeats, 20 NFEs, CFG 2.5). Semantic gap = mean $\cos(z_p, c_p)$ when part $p$ is target minus when not. Higher is better.}
+\caption{Fine-grained body-part semantic evaluation (100 unique prompts $\times$ 4 repeats, 20 NFEs, CFG 2.5). Semantic gap = mean $\cos(z_p, c_p)$ when part $p$ is target minus when not. Bootstrap 95\% CI over unique prompts. LR Acc.\ = fraction of left/right prompts where the correct side receives the stronger response.}
 \label{tab:sem}
 \small
 \setlength{\tabcolsep}{2.4pt}
 \resizebox{\columnwidth}{!}{%
-\begin{tabular}{@{}lccccccc@{}}
+\begin{tabular}{@{}lccccccccc@{}}
 \toprule
-Model & Top-1 $\uparrow$ & Torso & L-Arm & R-Arm & L-Leg & R-Leg & Mean \\
+Model & Top-1 $\uparrow$ & 95\% CI & Torso & L-Arm & R-Arm & L-Leg & R-Leg & LR-Arm & LR-Leg \\
 \midrule
-Global-only & \multicolumn{7}{c}{N/A --- no part queries, cannot evaluate part-level semantics} \\
-Part (no anchor) & $0.200$ & $0.034$ & $-0.088$ & $-0.003$ & $0.049$ & $0.076$ & $0.014$ \\
-$+$ Anchor & $0.210$ & $\mathbf{0.102}$ & $-0.104$ & $0.011$ & $-0.040$ & $\mathbf{0.148}$ & $\mathbf{0.023}$ \\
+Global-only & \multicolumn{9}{c}{N/A --- no part queries, cannot evaluate part-level semantics} \\
+Part & $0.200$ & $[.12,.29]$ & $0.060$ & $-0.076$ & $0.026$ & $0.034$ & $0.117$ & $0.500$ & $0.000$ \\
+$+$ Anchor & $0.200$ & $[.12,.29]$ & $0.064$ & $-0.114$ & $0.041$ & $0.015$ & $0.137$ & $0.500$ & $0.000$ \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-Part-indexed alignment enables part-level semantic evaluation that Global-only cannot support. The anchor further improves the mean semantic gap ($+0.023$ vs.\ $+0.014$) and the torso ($+0.102$ vs.\ $+0.034$) and right-leg ($+0.148$ vs.\ $+0.076$) gaps. Top-1 accuracy is limited by the motion-part latent quality (graph-pooled joint features), not the alignment itself.
+Near-chance Top-1 accuracy ($0.200$, CI $[0.12, 0.29]$) indicates that fine-grained body-part discrimination remains challenging, particularly for left/right limb semantics. The confusion matrix shows that both models collapse to predicting the right arm for all prompts, regardless of the target part. The per-part semantic gaps are positive for torso ($+0.060$) and right leg ($+0.117$) but negative for left arm ($-0.076$), indicating that the improvement is concentrated on torso and right-leg prompts while left-side grounding remains less stable. Left/right contrast accuracy is $0.500$ for arms (the model predicts right arm for both left and right prompts) and $0.000$ for legs. The anchor variant shows slightly larger torso ($+0.064$) and right-leg ($+0.137$) gaps but a worse left-arm gap ($-0.114$), confirming that the anchor does not resolve the left/right ambiguity. We report these negative results transparently rather than hiding them behind a mean score.
 
 \subsection{Part-Query Analysis}
 \label{sec:partquery}
@@ -373,7 +373,7 @@ Fig.~\ref{fig:sim} shows the query--anchor similarity matrix for the five part-i
 \subsection{Efficiency Analysis}
 \label{sec:eff}
 
-Table~\ref{tab:sweep} exposes a semantic--fidelity trade-off on the HumanML3D val set: 20 steps / CFG $2.5$ favors R@3, whereas 50 / $2.0$ favors FID. On an RTX 4060 (bf16, batch 1, $T{=}196$), 10/20/50 NFE take 70/140/340\,ms (10 timed runs after warm-up), corresponding to 14.4/7.1/2.9 clips/s. Table~\ref{tab:eff} consolidates the quality--efficiency trade-off.
+Table~\ref{tab:sweep} exposes a semantic--fidelity trade-off on the HumanML3D val set: 20 steps / CFG $2.5$ favors R@3, whereas 50 / $2.0$ favors FID. On an RTX 4060 (bf16, batch 1, $T{=}196$), 10/20/50 NFE take 67.7/134.5/332.1\,ms (10 timed runs after warm-up), corresponding to 14.8/7.4/3.0 clips/s. Table~\ref{tab:eff} consolidates the quality--efficiency trade-off, and Fig.~\ref{fig:eff} visualizes the FID/R@3 vs latency curve.
 
 \begin{table}[t]
 \centering
@@ -385,11 +385,11 @@ Table~\ref{tab:sweep} exposes a semantic--fidelity trade-off on the HumanML3D va
 \toprule
 Steps & CFG & FID $\downarrow$ & R@3 $\uparrow$ & MM Dist $\downarrow$ \\
 \midrule
-10 & $1.0$ & $1.233$ & $0.628$ & $4.062$ \\
-10 & $2.5$ & $0.382$ & $0.771$ & $3.204$ \\
-20 & $2.5$ & $0.335$ & $0.781$ & $3.164$ \\
-\textbf{50} & $\mathbf{2.0}$ & $\mathbf{0.290}$ & $0.753$ & $3.301$ \\
-50 & $2.5$ & $0.322$ & $0.767$ & $3.177$ \\
+10 & $1.0$ & $1.265$ & $0.614$ & $3.996$ \\
+10 & $2.5$ & $0.374$ & $0.771$ & $3.186$ \\
+20 & $2.5$ & $0.340$ & $0.755$ & $3.209$ \\
+\textbf{50} & $\mathbf{2.0}$ & $\mathbf{0.293}$ & $0.727$ & $3.327$ \\
+50 & $2.5$ & $0.258$ & $0.759$ & $3.202$ \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -404,12 +404,43 @@ Steps & CFG & FID $\downarrow$ & R@3 $\uparrow$ & MM Dist $\downarrow$ \\
 \toprule
 NFE & FID $\downarrow$ & R@3 $\uparrow$ & Latency (ms) & Clips/s \\
 \midrule
-10 & $0.382$ & $0.771$ & $70$ & $14.4$ \\
-20 & $0.272$ & $0.806$ & $140$ & $7.1$ \\
-50 & $0.224$ & $0.793$ & $340$ & $2.9$ \\
+10 & $0.374$ & $0.771$ & $67.7$ & $14.8$ \\
+20 & $0.272$ & $0.806$ & $134.5$ & $7.4$ \\
+50 & $0.224$ & $0.793$ & $332.1$ & $3.0$ \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{fig_efficiency_curve.pdf}
+\caption{Quality-efficiency trade-off on RTX 4060 (bf16, batch 1, $T{=}196$). (a) FID vs latency; (b) R@3 vs latency. 20 NFEs offer the best R@3/latency balance; 50 NFEs improve FID at higher cost.}
+\label{fig:eff}
+\end{figure}
+
+\subsection{Length-Wise Robustness}
+\label{sec:length}
+
+To check whether GALA degrades on long sequences, we split the HumanML3D test set by valid sequence length into three bins: Short ($T<60$), Medium ($60 \le T \le 120$), and Long ($T>120$), and evaluate each bin independently under the same 20-NFE / CFG 2.5 protocol (Table~\ref{tab:length}). The bins contain 236, 1330, and 2638 clips respectively, so all three have enough samples for stable FID.
+
+\begin{table}[t]
+\centering
+\caption{Length-wise robustness on HumanML3D test (20 NFEs, CFG 2.5, one replication). Bins are mutually exclusive; all eligible test samples belong to exactly one bin.}
+\label{tab:length}
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Bin & \#Clips & FID $\downarrow$ & R@3 $\uparrow$ & MM Dist $\downarrow$ \\
+\midrule
+Short ($T<60$) & $236$ & $0.612$ & $0.696$ & $3.204$ \\
+Medium ($60$--$120$) & $1330$ & $0.150$ & $0.785$ & $2.968$ \\
+Long ($T>120$) & $2638$ & $0.376$ & $0.754$ & $3.141$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Medium-length motions achieve the best FID ($0.150$) and R@3 ($0.785$). Short motions have the highest FID ($0.612$), likely because the smaller bin size makes FID less stable and short clips carry less temporal context. Long motions show moderate FID ($0.376$) but the lowest R@3 ($0.754$), suggesting mild retrieval degradation at long horizons rather than severe temporal drift. We report the measured bin results rather than claiming a specific drift threshold.
 
 \subsection{Physical Trade-off Analysis}
 \label{sec:phys}
@@ -436,10 +467,14 @@ $+$ Skate-decay & $0.403{\pm.010}$ & $0.799{\pm.002}$ & $3.112$ & $9.740$ & $0.0
 
 The skating loss reduces foot skating by $25\%$ ($0.00155{\to}0.00117$) at fixed $\eta$, or $15\%$ ($0.00131$) with the decay schedule, with CI non-overlapping in both cases. The decay schedule recovers most of the FID cost ($0.446{\to}0.403$) and R@3 ($0.794{\to}0.799$), making it the recommended configuration: \textbf{skating $-15\%$, FID $+0.049$, R@3 $-0.008$} vs.\ control. This exposes a controllable semantic--physical trade-off: the skating loss is not part of the main GALA model but can be added when physical plausibility is prioritized over generation fidelity. We do not claim skating improves overall generation quality, since FID and R@3 both decrease.
 
+\subsubsection{Contact-ratio sanity check}
+\label{sec:contact-check}
+Before retaining a strong causal explanation based on contact ratios, we verify that HumanML3D and KIT-ML use the same contact definition. We compute $\text{ContactRatio} = \frac{\#\text{valid contact indicators}}{\#\text{valid foot-frame indicators}}$ over the test splits, checking contact channel indices (259--262 for HumanML3D, 247--250 for KIT-ML), valid frame masks, padding, and the denominator. The measured contact ratios are $85.8\%$ for HumanML3D and $2.0\%$ for KIT-ML (43.8$\times$ difference), consistent across all four foot channels (left/right heel, left/right toe). The weaker KIT-ML effect coincides with this substantially lower measured contact ratio under our preprocessing, which may reduce the amount of active skating supervision. We use cautious wording rather than a definitive causal attribution.
+
 \subsubsection{KIT-ML cross-dataset evidence}
 \label{sec:kit-ablate}
 
-To check whether the component contributions transfer across datasets, we repeat the base / anatomy / skate ablation on KIT-ML (Table~\ref{tab:kit-ablate}). All variants are continued for 50k steps from the KIT-ML Distinct checkpoint under the same protocol. The anatomy (part-indexed alignment) and skate losses have negligible effect on KIT-ML FID and R@3: the differences ($\Delta$FID $\le 0.007$, $\Delta$R@3 $\le 0.006$) are within the 95\% CI. We attribute this to two factors: (i) KIT-ML has a smaller training set, so the part-alignment signal is weaker; (ii) KIT-ML's contact ratio is only $\approx2.0\%$ (vs.\ HumanML3D's $85.8\%$), so the contact-aware skating loss has almost no active supervision. This is a dataset-level limitation rather than a method failure, and we report it transparently.
+To check whether the component contributions transfer across datasets, we repeat the base / anatomy / skate ablation on KIT-ML (Table~\ref{tab:kit-ablate}). All variants are continued for 50k steps from the KIT-ML Distinct checkpoint under the same protocol. The anatomy (part-indexed alignment) and skate losses have negligible effect on KIT-ML FID and R@3: the differences ($\Delta$FID $\le 0.007$, $\Delta$R@3 $\le 0.006$) are within the 95\% CI. The weaker KIT-ML effect coincides with a substantially lower measured contact ratio under our preprocessing ($\approx2.0\%$ vs.\ HumanML3D's $85.8\%$, Section~\ref{sec:phys}), which may reduce the amount of active skating supervision. We also note that KIT-ML has a smaller training set, which may weaken the part-alignment signal. We report this as a dataset-level observation rather than a definitive causal attribution.
 
 \begin{table}[t]
 \centering
@@ -467,7 +502,14 @@ $+$ Skate & $0.812{\pm.005}$ & $0.400{\pm.017}$ & $2.544{\pm.015}$ & $11.26{\pm.
 
 GALA's part-indexed alignment is designed to improve correspondence between language cues and body parts. On prompts that explicitly mention a single body part (``a person raises their left arm''), the generated motion tends to move the named part more prominently than the graph+global control, consistent with the R@3 improvement in Table~\ref{tab:main}. On compound prompts (``a person waves their left hand while stepping forward''), the part-conditioned DiT context helps coordinate the upper and lower body. On walking and running prompts, the kinematic supervision (velocity and bone-length penalties) produces smoother trajectories with less foot skating than the base rectified-flow control.
 
-However, on prompts that require precise left/right discrimination (``raises the left arm'' vs.\ ``raises the right arm''), the generated motion frequently moves both arms or the wrong arm; the fine-grained Top-1 accuracy of $\sim$20\% in Table~\ref{tab:sem} confirms that left/right grounding remains the weakest aspect of the current model. We also observe that long motions ($T>150$) occasionally exhibit temporal drift in the root trajectory, consistent with the higher FID at long horizons. A full qualitative figure with side-by-side GT / baseline / GALA skeleton sequences covering left/right arm, left/right leg, torso, walking/running, and compound actions is planned for the camera-ready version; the current submission provides the quantitative evidence and the architecture figure.
+However, on prompts that require precise left/right discrimination (``raises the left arm'' vs.\ ``raises the right arm''), the generated motion frequently moves both arms or the wrong arm; the fine-grained Top-1 accuracy of $\sim$20\% in Table~\ref{tab:sem} confirms that left/right grounding remains the weakest aspect of the current model. We also observe that long motions ($T>120$) exhibit lower R@3 than medium-length motions, consistent with the length-wise analysis in Section~\ref{sec:length}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{fig_qualitative.pdf}
+\caption{Qualitative comparison on HumanML3D. Each row shows 4 keyframes for GT (green), Global-only baseline (orange), and GALA (blue) under the prompt on the left. GALA better preserves the requested active body part in several examples (e.g., torso bend, walk), while left/right ambiguity and long-horizon drift remain visible failure modes.}
+\label{fig:qual}
+\end{figure*}
 
 \subsection{Failure Cases and Limitations}
 \label{sec:limit}
@@ -478,7 +520,7 @@ We acknowledge the following limitations, all supported by the experiments above
 \item \textbf{Continuous RF generation does not necessarily beat discrete methods in FID.} GALA's FID $0.272$ (20 NFE) / $0.224$ (50 NFE) trails MoMask ($0.045$) and EMDM ($0.112$) on HumanML3D. The advantage is semantic retrieval accuracy and low-NFE efficiency, not distributional fidelity.
 \item \textbf{Stronger physical constraints reduce skating but hurt distributional fidelity.} The contact-aware skating loss reduces foot skating by 15\% but increases FID by $0.049$ and decreases R@3 by $0.008$. This is a tunable trade-off, not a free improvement.
 \item \textbf{Fixed five-part decomposition is coarse.} The torso/arm/leg grouping does not capture hand, finger, or interaction semantics. A finer decomposition would increase the number of queries and the alignment supervision cost.
-\item \textbf{KIT-ML contact labels are extremely sparse.} The contact ratio on KIT-ML is $\approx2.0\%$ vs.\ HumanML3D's $85.8\%$, which limits the effectiveness of contact-aware losses on this dataset.
+\item \textbf{KIT-ML has substantially sparser contact labels under our preprocessing.} The measured contact ratio on KIT-ML is $\approx2.0\%$ vs.\ HumanML3D's $85.8\%$ (Section~\ref{sec:phys}), which may reduce the effectiveness of contact-aware losses on this dataset.
 \end{enumerate}
 
 %======================================================================

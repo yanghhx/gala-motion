@@ -1,0 +1,702 @@
+[
+  {
+    "id": "torso_01",
+    "text": "a person bends the torso forward",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_02",
+    "text": "a person twists the upper body to the left",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_03",
+    "text": "a person leans backward while standing",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_04",
+    "text": "a person rotates the torso from side to side",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_05",
+    "text": "a person turns their body around to the left",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_06",
+    "text": "a person bends their torso down forward",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_07",
+    "text": "a person twists their upper body sideways",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_08",
+    "text": "a person leans their torso to the right",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_09",
+    "text": "a person rotates their body slowly",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_10",
+    "text": "a person leans their torso to the left",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_11",
+    "text": "a person bends sideways to the right",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_12",
+    "text": "a person bends sideways to the left",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_13",
+    "text": "a person shrugs their shoulders",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_14",
+    "text": "a person hunches their back forward",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_15",
+    "text": "a person arches their back backward",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_16",
+    "text": "a person rotates their hips in a circle",
+    "target_part": "torso",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "torso_17",
+    "text": "a person leans the torso forward while standing",
+    "target_part": "torso",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "torso_18",
+    "text": "a person twists the torso and looks over their shoulder",
+    "target_part": "torso",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "torso_19",
+    "text": "a person bends forward and touches the ground",
+    "target_part": "torso",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "torso_20",
+    "text": "a person rotates the upper body while keeping feet planted",
+    "target_part": "torso",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "left_arm_01",
+    "text": "a person raises their left arm up above the head",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_02",
+    "text": "a person waves their left hand in the air",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_03",
+    "text": "a person lifts their left arm sideways",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_04",
+    "text": "a person stretches their left arm forward",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_05",
+    "text": "a person puts their left hand on the hip",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_06",
+    "text": "a person extends the left arm to the side",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_07",
+    "text": "a person swings the left arm forward",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_08",
+    "text": "a person raises the left hand to the face",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_09",
+    "text": "a person crosses the left arm over the chest",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_10",
+    "text": "a person bends the left elbow and raises the forearm",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_11",
+    "text": "a person reaches up with the left hand",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_12",
+    "text": "a person pushes forward with the left hand",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_13",
+    "text": "a person pulls the left arm back",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_14",
+    "text": "a person circles the left arm around",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_15",
+    "text": "a person lowers the left arm slowly",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_16",
+    "text": "a person holds the left arm out straight",
+    "target_part": "left_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_arm_17",
+    "text": "a person raises the left arm while stepping forward",
+    "target_part": "left_arm",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "left_arm_18",
+    "text": "a person waves the left hand and turns around",
+    "target_part": "left_arm",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "left_arm_19",
+    "text": "a person extends the left arm and leans sideways",
+    "target_part": "left_arm",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "left_arm_20",
+    "text": "a person raises the left arm above the head while walking",
+    "target_part": "left_arm",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "right_arm_01",
+    "text": "a person raises their right arm up above the head",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_02",
+    "text": "a person waves their right hand in the air",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_03",
+    "text": "a person lifts their right arm sideways",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_04",
+    "text": "a person stretches their right arm forward",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_05",
+    "text": "a person puts their right hand on the hip",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_06",
+    "text": "a person extends the right arm to the side",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_07",
+    "text": "a person swings the right arm forward",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_08",
+    "text": "a person raises the right hand to the face",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_09",
+    "text": "a person crosses the right arm over the chest",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_10",
+    "text": "a person bends the right elbow and raises the forearm",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_11",
+    "text": "a person reaches up with the right hand",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_12",
+    "text": "a person pushes forward with the right hand",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_13",
+    "text": "a person pulls the right arm back",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_14",
+    "text": "a person circles the right arm around",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_15",
+    "text": "a person lowers the right arm slowly",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_16",
+    "text": "a person holds the right arm out straight",
+    "target_part": "right_arm",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_arm_17",
+    "text": "a person raises the right arm while stepping forward",
+    "target_part": "right_arm",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "right_arm_18",
+    "text": "a person waves the right hand and turns around",
+    "target_part": "right_arm",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "right_arm_19",
+    "text": "a person extends the right arm and leans sideways",
+    "target_part": "right_arm",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "right_arm_20",
+    "text": "a person raises the right arm above the head while walking",
+    "target_part": "right_arm",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "left_leg_01",
+    "text": "a person kicks forward with their left leg",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_02",
+    "text": "a person lifts their left knee up",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_03",
+    "text": "a person steps forward with their left leg",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_04",
+    "text": "a person raises their left foot off the ground",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_05",
+    "text": "a person bends their left knee",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_06",
+    "text": "a person kicks sideways with the left leg",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_07",
+    "text": "a person steps sideways with the left foot",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_08",
+    "text": "a person lifts the left foot to the side",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_09",
+    "text": "a person extends the left leg backward",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_10",
+    "text": "a person stomps the left foot on the ground",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_11",
+    "text": "a person raises the left knee to the chest",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_12",
+    "text": "a person kicks backward with the left leg",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_13",
+    "text": "a person taps the left toe on the ground",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_14",
+    "text": "a person swings the left leg forward",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_15",
+    "text": "a person lifts the left heel while standing",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_16",
+    "text": "a person steps backward with the left foot",
+    "target_part": "left_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "left_leg_17",
+    "text": "a person kicks the left leg while raising the arms",
+    "target_part": "left_leg",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "left_leg_18",
+    "text": "a person steps forward with the left foot and turns",
+    "target_part": "left_leg",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "left_leg_19",
+    "text": "a person lifts the left knee while bending forward",
+    "target_part": "left_leg",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "left_leg_20",
+    "text": "a person kicks sideways with the left leg while standing",
+    "target_part": "left_leg",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "right_leg_01",
+    "text": "a person kicks forward with their right leg",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_02",
+    "text": "a person lifts their right knee up",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_03",
+    "text": "a person steps forward with their right leg",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_04",
+    "text": "a person raises their right foot off the ground",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_05",
+    "text": "a person bends their right knee",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_06",
+    "text": "a person kicks sideways with the right leg",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_07",
+    "text": "a person steps sideways with the right foot",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_08",
+    "text": "a person lifts the right foot to the side",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_09",
+    "text": "a person extends the right leg backward",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_10",
+    "text": "a person stomps the right foot on the ground",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_11",
+    "text": "a person raises the right knee to the chest",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_12",
+    "text": "a person kicks backward with the right leg",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_13",
+    "text": "a person taps the right toe on the ground",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_14",
+    "text": "a person swings the right leg forward",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_15",
+    "text": "a person lifts the right heel while standing",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_16",
+    "text": "a person steps backward with the right foot",
+    "target_part": "right_leg",
+    "category": "simple",
+    "difficulty": "simple"
+  },
+  {
+    "id": "right_leg_17",
+    "text": "a person kicks the right leg while raising the arms",
+    "target_part": "right_leg",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "right_leg_18",
+    "text": "a person steps forward with the right foot and turns",
+    "target_part": "right_leg",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "right_leg_19",
+    "text": "a person lifts the right knee while bending forward",
+    "target_part": "right_leg",
+    "category": "compound",
+    "difficulty": "compound"
+  },
+  {
+    "id": "right_leg_20",
+    "text": "a person kicks sideways with the right leg while standing",
+    "target_part": "right_leg",
+    "category": "compound",
+    "difficulty": "compound"
+  }
+]

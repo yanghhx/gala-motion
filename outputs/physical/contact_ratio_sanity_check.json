@@ -1,0 +1,55 @@
+{
+  "humanml3d": {
+    "n_clips": 4384,
+    "total_frames": 617004,
+    "total_valid_frames": 616999,
+    "per_foot": {
+      "left_heel": 525471,
+      "right_heel": 532866,
+      "left_toe": 525821,
+      "right_toe": 533051
+    },
+    "overall_contact_indicators": 2117209,
+    "contact_ratio_overall": 0.8578656529427114,
+    "contact_ratio_per_foot": {
+      "left_heel": 0.8516561615172796,
+      "right_heel": 0.8636415942327297,
+      "left_toe": 0.8522234233766992,
+      "right_toe": 0.8639414326441371
+    }
+  },
+  "kit_ml": {
+    "n_clips": 830,
+    "total_frames": 88260,
+    "total_valid_frames": 88260,
+    "per_foot": {
+      "left_heel": 1684,
+      "right_heel": 1773,
+      "left_toe": 1684,
+      "right_toe": 1773
+    },
+    "overall_contact_indicators": 6914,
+    "contact_ratio_overall": 0.019584183095399953,
+    "contact_ratio_per_foot": {
+      "left_heel": 0.019079990935871288,
+      "right_heel": 0.02008837525492862,
+      "left_toe": 0.019079990935871288,
+      "right_toe": 0.02008837525492862
+    }
+  },
+  "hml3d_to_kit_ratio": 43.80400493417629,
+  "contact_channel_indices": {
+    "humanml3d": {
+      "left_heel": "[259:260]",
+      "right_heel": "[260:261]",
+      "left_toe": "[261:262]",
+      "right_toe": "[262:263]"
+    },
+    "kit_ml": {
+      "left_heel": "[247:248]",
+      "right_heel": "[248:249]",
+      "left_toe": "[249:250]",
+      "right_toe": "[250:251]"
+    }
+  }
+}

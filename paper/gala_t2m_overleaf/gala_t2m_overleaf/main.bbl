@@ -47,14 +47,20 @@ J.~Ho and T.~Salimans, ``Classifier-free diffusion guidance,'' \emph{arXiv prepr
 \bibitem{li2025genmo}
 J.~Li, J.~Cao, H.~Zhang, D.~Rempe, J.~Kautz, U.~Iqbal, and Y.~Yuan, ``{GENMO}: A {GEN}eralist model for human {MO}tion,'' in \emph{ICCV}, 2025, pp. 11\,766--11\,776.
 
+\bibitem{chen2023mld}
+X.~Chen, B.~Jiang, W.~Liu, Z.~Huang, B.~Fu, T.~Chen, and G.~Yu, ``{MLD}: A motion latent diffusion model for text-to-motion generation,'' in \emph{ICCV}, 2023.
+
+\bibitem{liu2023rectified}
+X.~Liu, C.~Gong, and Q.~Liu, ``Flow straight and fast: {R}ectified flow for generative modeling,'' in \emph{ICLR}, 2023.
+
+\bibitem{lipman2023flow}
+Y.~Lipman, R.~T.~Q. Chen, H.~Ben-Hamu, M.~Nickel, and M.~Le, ``Flow matching for generative modeling,'' 2023.
+
 \bibitem{zhang2022motiondiffuse}
 M.~Zhang, Z.~Cai, L.~Pan, F.~Hong, X.~Guo, L.~Yang, and Z.~Liu, ``{MotionDiffuse}: Text-driven human motion generation with diffusion model,'' in \emph{arXiv preprint arXiv:2208.15001}, 2022.
 
 \bibitem{ho2020ddpm}
 J.~Ho, A.~Jain, and P.~Abbeel, ``Denoising diffusion probabilistic models,'' in \emph{NeurIPS}, 2020.
-
-\bibitem{chen2023mld}
-X.~Chen, B.~Jiang, W.~Liu, Z.~Huang, B.~Fu, T.~Chen, and G.~Yu, ``{MLD}: A motion latent diffusion model for text-to-motion generation,'' in \emph{ICCV}, 2023.
 
 \bibitem{rombach2022ldm}
 R.~Rombach, A.~Blattmann, D.~Lorenz, P.~Esser, and B.~Ommer, ``High-resolution image synthesis with latent diffusion models,'' in \emph{CVPR}, 2022.
@@ -76,12 +82,6 @@ W.~Dai, L.-H. Chen, J.~Wang, J.~Dai, G.~Pons-Moll \emph{et~al.}, ``{MotionLCM}: 
 
 \bibitem{zhou2024emdm}
 W.~Zhou, Z.~Dou, Z.~Cao, Z.~Liao, J.~Wang, W.~Dai \emph{et~al.}, ``{EMDM}: Efficient motion diffusion model for fast and high-quality motion generation,'' in \emph{ICLR}, 2024.
-
-\bibitem{liu2023rectified}
-X.~Liu, C.~Gong, and Q.~Liu, ``Flow straight and fast: {R}ectified flow for generative modeling,'' in \emph{ICLR}, 2023.
-
-\bibitem{lipman2023flow}
-Y.~Lipman, R.~T.~Q. Chen, H.~Ben-Hamu, M.~Nickel, and M.~Le, ``Flow matching for generative modeling,'' 2023.
 
 \bibitem{peebles2023dit}
 W.~Peebles and S.~Xie, ``Scalable diffusion models with transformers,'' in \emph{ICCV}, 2023.
