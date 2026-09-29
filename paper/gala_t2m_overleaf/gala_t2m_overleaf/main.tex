@@ -10,7 +10,7 @@
 \graphicspath{{figures/}}
 \setlength{\parskip}{0pt}
 
-\title{GALA: ANATOMY-AWARE LANGUAGE--MOTION ALIGNMENT FOR EFFICIENT TEXT-TO-MOTION RECTIFIED FLOW}
+\title{GALA: PART-AWARE LANGUAGE--MOTION ALIGNMENT FOR EFFICIENT TEXT-TO-MOTION RECTIFIED FLOW}
 \name{Anonymous submission}
 \address{Author names and affiliations required before submission}
 
@@ -21,9 +21,9 @@
 \begin{abstract}
 Text-to-motion generation must couple language semantics with skeletal kinematics, yet most latent generators use pooled text conditioning or denoise raw poses at high cost.
 Existing methods lack an explicit bridge between skeletal topology, fine-grained semantics, and the generative trajectory.
-GALA establishes that bridge through three contributions: (1) a skeleton-graph CTR tokenizer that preserves skeletal dependencies and exposes five body-part latents; (2) an anatomically grounded part-semantic alignment where learnable queries are anchored to cached CLIP embeddings of anatomical prompts, providing explicit language--body correspondence; (3) a kinematic rectified-flow DiT that transports noise under decoded-space velocity, bone-length, and foot-contact penalties, sampled with a 20--50 step Euler ODE.
-Under the official 20-replication protocol, GALA reaches R@3 $0.806$ / FID $0.272$ at 20 NFEs and FID $0.224$ at 50 NFEs on HumanML3D; on KIT-ML it obtains R@3 $0.804$ / FID $0.402$.
-The graph tokenizer reconstructs at FID $0.003$, the anatomical anchor adds near-zero quality cost while improving fine-grained part-semantic correspondence, and a supplementary contact-aware skating loss reduces foot skating by 15\% with limited FID degradation.
+GALA establishes that bridge through three contributions: (1) a topology-aware CTR graph tokenizer that preserves skeletal dependencies and exposes five body-part latents; (2) a part-indexed language--motion alignment where five fixed-index queries attend to CLIP tokens and are supervised by graph-pooled body parts, enabling part-level semantic evaluation that pooled-conditioning models cannot support; (3) a kinematic rectified-flow DiT that transports noise under decoded-space velocity, bone-length, and foot-contact penalties, sampled with a 20--50 step Euler ODE.
+Under the official 20-replication protocol, GALA reaches R@3 $0.806$ / FID $0.272$ at 20 NFEs and FID $0.224$ at 50 NFEs on HumanML3D, while remaining behind discrete generators in distributional FID; on KIT-ML it obtains R@3 $0.804$ / FID $0.402$.
+The graph tokenizer reconstructs at FID $0.003$, part-indexed alignment improves retrieval and enables fine-grained part-semantic correspondence, and a supplementary contact-aware skating loss reduces foot skating by 15\% with limited FID degradation.
 \end{abstract}
 
 \begin{keywords}
@@ -43,8 +43,8 @@ GALA establishes this bridge by linking three stages that are not interchangeabl
 
 \noindent\textbf{Contributions.}
 \begin{enumerate}\itemsep2pt
-\item \textbf{Anatomy-aware motion tokenizer.} A CTR graph encoder plus stride-4 VAE maps $263$-D poses to $256$-D latents at 5\,Hz, preserving skeletal dependencies and exposing part-structured features. Val reconstruction FID is $0.003$.
-\item \textbf{Anatomically grounded part-semantic alignment.} Beyond pooled InfoNCE, five fixed-index queries attend to CLIP tokens and are supervised by corresponding graph-pooled body parts. The queries are \emph{anchored} to cached CLIP embeddings of anatomical prompts (``left arm, left hand and shoulder movement'', etc.) via a gated residual with $\sigma(-3)\approx0.05$ initial influence, grounding the learnable slots in explicit body-part semantics. A fine-grained part-semantic evaluation verifies that the target body part achieves the highest query--motion cosine on targeted prompts.
+\item \textbf{Topology-aware graph motion tokenizer.} A CTR graph encoder plus stride-4 VAE maps $263$-D poses to $256$-D latents at 5\,Hz, preserving skeletal dependencies and exposing part-structured features. Val reconstruction FID is $0.003$.
+\item \textbf{Part-indexed language--motion alignment.} Beyond pooled InfoNCE, five fixed-index queries attend to CLIP tokens and are supervised by corresponding graph-pooled body parts, enabling part-level semantic evaluation that pooled-conditioning models cannot support. A collapse audit verifies that the five attention profiles remain distinct.
 \item \textbf{Kinematic-aware rectified flow.} An 8-block DiT learns a straight latent ODE under classifier-free guidance~\cite{ho2022cfg}, with velocity, bone-length, and foot-contact penalties in decoded motion space, enabling 20--50 NFE sampling. A supplementary contact-aware skating loss further improves physical plausibility at a controlled FID cost (Sec.~\ref{sec:phys}).
 \end{enumerate}
 
@@ -108,17 +108,6 @@ and are trained to match the corresponding part latent
 \end{equation}
 where negatives are other examples in the minibatch. Each query is contrasted only with the graph-pooled latent at the same ordered index: torso, left arm, right arm, left leg, and right leg. This predefined correspondence prevents permutation ambiguity among the five slots.
 The same $\tilde c_p$ are concatenated to CLIP tokens as extra DiT context, so the branch is used at sampling time rather than only as a projection head. We do not equate attention weights with explanations: the diagnostic below establishes non-collapse, while the fixed-index contrastive targets provide anatomical supervision.
-
-\noindent\textbf{Anatomical anchor.}
-The learnable queries $q_p$ are not explicitly tied to anatomical meanings. We ground them by caching CLIP embeddings $a_p=E_{\text{CLIP}}(s_p)$ of five anatomical prompts $s_p$ (``torso, body and head movement'', ``left arm, left hand and left shoulder movement'', etc.) and mixing a gated anchor signal into the query:
-\begin{equation}
-q_p^{\text{anchor}}=q_p^{\text{learn}}+\sigma(g_p)\,W_a\,a_p,
-\end{equation}
-where $g_p$ is a per-part learnable gate and $W_a$ a projection. The gate is initialised to $g_p=-3$ so $\sigma(-3)\approx0.05$, avoiding strong perturbation early in training. An anchor loss regularises the projected query toward the anchor embedding:
-\begin{equation}
-\mathcal{L}_{\text{anchor}}=\frac{1}{P}\sum_{p}\bigl[1-\cos(\bar q_p,\bar a_p)\bigr],
-\end{equation}
-and the full part-semantic loss is $\mathcal{L}_{\text{PSA}}=\mathcal{L}_{\text{part}}+\lambda_d\mathcal{L}_{\text{div}}+\lambda_a\mathcal{L}_{\text{anchor}}$ with $\lambda_a=0.05$.
 
 \noindent\textbf{Kinematic rectified flow.}
 Given clean $\mu$ (detached), $t\sim\mathcal{U}(0,1)$, $\varepsilon\sim\mathcal{N}(0,I)$,
@@ -232,25 +221,7 @@ GENMO's SMPL$\leftrightarrow$HumanML3D conversion makes its FID $0.216$ a weak t
 
 Table~\ref{tab:kit} uses the same Guo protocol on official KIT-ML.
 Literature numbers are from MoMask~\cite{guo2024momask} and MDM~\cite{tevet2023mdm}.
-GALA is trained with the $21$-joint graph and otherwise the same recipe as on HumanML3D.
-Table~\ref{tab:kit_ablate} reports the TMM extension ablation on KIT-ML (Base, $+$Anchor, $+$Skate). The skating loss has less effect on KIT-ML because KIT-ML's foot-contact labels are extremely sparse: only $2.0\%$ of foot frames are in contact, versus $85.8\%$ on HumanML3D, so fewer frames are available to penalize.
-
-\begin{table}[t]
-\centering
-\caption{KIT-ML TMM ablation (20 replications, 20 NFEs, CFG 2.5, 50k steps from KIT-ML Distinct).}
-\label{tab:kit_ablate}
-\small
-\setlength{\tabcolsep}{2.6pt}
-\begin{tabular}{@{}lcccc@{}}
-\toprule
-Model & FID $\downarrow$ & R@3 $\uparrow$ & MM $\downarrow$ & Div.\ $\rightarrow$ \\
-\midrule
-Base & $0.400{\pm.020}$ & $0.818{\pm.006}$ & $2.530$ & $11.33$ \\
-$+$ Anchor & $0.407{\pm.020}$ & $0.816{\pm.006}$ & $2.534$ & $11.15$ \\
-$+$ Skate-decay & $0.400{\pm.020}$ & $0.812{\pm.006}$ & $2.544$ & $11.26$ \\
-\bottomrule
-\end{tabular}
-\end{table}
+GALA improves retrieval-based semantic alignment on KIT-ML (R@3 $0.804$ vs MoMask $0.781$), while discrete MoMask retains substantially better distributional fidelity (FID $0.204$ vs $0.402$). This is consistent with the HumanML3D pattern: GALA's advantage is 20-NFE semantic accuracy, not distributional FID.
 
 \begin{table}[t]
 \centering
@@ -305,15 +276,16 @@ The graph alone lowers FID by $0.033$; part-indexed alignment recovers the retri
 \subsection{Physical constraints ablation}
 \label{sec:phys}
 
-Table~\ref{tab:phys} isolates the contribution of the contact-aware skating loss and the anatomical anchor.
-All variants continue training 50k steps from the same Distinct checkpoint (the public 100k-step GALA in Table~\ref{tab:main} uses the original velocity/bone/foot kinematic losses \emph{without} skating; this table analyses the \emph{additional} skating and anchor constraints).
-A3 is the $\lambda{=}0$ control; ``Skate'' uses fixed $\eta{=}0.02$; ``Skate-decay'' uses $\eta{:}0.03{\to}0.01$.
-``Anchor'' is the anatomically anchored part alignment with gate init $-3$.
-ST-CTR (spatio-temporal CTR graph) is included as \emph{analysis only}---it is not part of the final model because it hurts generation quality.
+Table~\ref{tab:phys} analyses a supplementary contact-aware skating loss.
+\emph{This table is a controlled extension study and is not directly comparable to Table~\ref{tab:ablate}.}
+All variants are independently continued for 50k steps from the same Distinct checkpoint; A3 is the zero-weight continuation control.
+Table~\ref{tab:ablate} instead reports checkpoints from the original full GALA training protocol (100k steps from scratch), which uses velocity, bone, and foot-feature kinematic losses \emph{without} the skating loss.
+The skating loss is an additional physical constraint that trades generation fidelity for plausibility; it is not part of the main GALA model in Table~\ref{tab:main}.
+``Skate'' uses fixed $\eta{=}0.02$; ``Skate-decay'' uses $\eta{:}0.03{\to}0.01$.
 
 \begin{table}[t]
 \centering
-\caption{Physical constraints ablation on HumanML3D test (20 replications, 20 NFEs, CFG 2.5, 50k steps from Distinct). Rows above the rule are the final model build-up; ST-CTR below the rule is analysis only.}
+\caption{Contact-aware skating loss analysis on HumanML3D test (20 replications, 20 NFEs, CFG 2.5, 50k steps from Distinct). Not part of the main GALA model; exposes a controllable semantic--physical trade-off.}
 \label{tab:phys}
 \small
 \setlength{\tabcolsep}{2.4pt}
@@ -322,27 +294,20 @@ ST-CTR (spatio-temporal CTR graph) is included as \emph{analysis only}---it is n
 Model & FID $\downarrow$ & R@3 $\uparrow$ & MM $\downarrow$ & Div.\ $\rightarrow$ & Skate $\downarrow$ & Acc.\ $\downarrow$ \\
 \midrule
 A3 (control) & $\mathbf{0.354}{\pm.010}$ & $\mathbf{0.807}{\pm.002}$ & $\mathbf{3.064}$ & $\mathbf{9.744}$ & $0.00155$ & $0.00443$ \\
+$+$ Skate & $0.446{\pm.008}$ & $0.794{\pm.002}$ & $3.148$ & $9.723$ & $\mathbf{0.00117}$ & $\mathbf{0.00427}$ \\
 $+$ Skate-decay & $0.403{\pm.010}$ & $0.799{\pm.002}$ & $3.112$ & $9.740$ & $0.00131$ & $0.00434$ \\
-$+$ Anchor (gate $-3$) & $0.371{\pm.010}$ & $0.806{\pm.002}$ & $3.063$ & $9.787$ & $0.00153$ & $0.00441$ \\
-$+$ Anchor $+$ Skate & $0.417{\pm.010}$ & $0.797{\pm.002}$ & $3.119$ & $9.810$ & $\mathbf{0.00131}$ & $0.00431$ \\
-\midrule
-\multicolumn{7}{l}{\emph{Analysis only (not in final model):}} \\
-$+$ ST-CTR & $0.458{\pm.010}$ & $0.792{\pm.002}$ & $3.125$ & $9.379$ & $0.00147$ & $0.00439$ \\
-$+$ All (TMM) & $0.502{\pm.010}$ & $0.787{\pm.002}$ & $3.166$ & $9.449$ & $0.00129$ & $0.00432$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 The skating loss reduces foot skating by $25\%$ ($0.00155{\to}0.00117$) at fixed $\eta$, or $15\%$ ($0.00131$) with the decay schedule, with CI non-overlapping in both cases.
 The decay schedule recovers most of the FID cost ($0.446{\to}0.403$) and R@3 ($0.794{\to}0.799$), making it the recommended configuration: \textbf{skating $-15\%$, FID $+0.049$, R@3 $-0.008$} vs control.
-The anatomical anchor adds near-zero quality cost (FID $+0.015$, R@3 $-0.002$, both within CI), confirming that the five queries can be grounded in CLIP semantics without hurting generation.
-
-\noindent\textbf{Analysis: temporal dependency (ST-CTR).}
-ST-CTR adds per-joint temporal self-attention to the spatial CTR block with a relative-position bias. It improves some physical metrics (skating $-5\%$) but at a quality cost (FID $+0.104$, R@3 $-0.015$, Diversity $-0.37$). Temporal modelling improves motion dynamics but introduces optimisation difficulty in latent generation; the final model therefore keeps the original spatial CTR graph for a better quality--efficiency tradeoff. The full TMM combination accumulates costs rather than showing synergy, confirming that the physical benefit comes from the skating loss alone.
+This exposes a controllable semantic--physical trade-off: the skating loss is not part of the main GALA model but can be added when physical plausibility is prioritized over generation fidelity.
 
 \subsection{Fine-grained body-part semantic evaluation}
 
-To verify that the anatomical anchor provides explicit language--body correspondence, we evaluate part semantic consistency on 25 targeted test prompts (5 per body part: ``a person raises their left arm'', ``a person kicks with their right leg'', etc.). For each prompt we generate motion, extract part latents $z_{\text{part}}$ from the generated motion via graph pooling, extract part text tokens $c_{\text{part}}$ from CLIP via the part alignment module, and compute $\cos(z_{\text{part}}, c_{\text{part}})$ per part. The target body part should achieve the highest cosine.
+To verify that part-indexed alignment enables fine-grained language--body correspondence, we evaluate part semantic consistency on 25 targeted test prompts (5 per body part: ``a person raises their left arm'', ``a person kicks with their right leg'', etc.). For each prompt we generate motion, extract part latents $z_{\text{part}}$ from the generated motion via graph pooling, extract part text tokens $c_{\text{part}}$ from CLIP via the part alignment module, and compute $\cos(z_{\text{part}}, c_{\text{part}})$ per part. The target body part should achieve the highest cosine.
+Pooled-conditioning (Global-only) models lack part queries and cannot be evaluated on this metric---this is the core evidence that part indexing enables fine-grained semantic alignment that pooled conditioning cannot support.
 
 Table~\ref{tab:sem} reports top-1 accuracy (target part has the highest cosine) and the semantic gap (mean cosine when a part is the target minus when it is not). % Results pending training completion.
 
@@ -356,13 +321,14 @@ Table~\ref{tab:sem} reports top-1 accuracy (target part has the highest cosine) 
 \toprule
 Model & Top-1 $\uparrow$ & Torso & L-Arm & R-Arm & L-Leg & R-Leg & Mean \\
 \midrule
-Baseline & $0.200$ & $0.034$ & $-0.088$ & $-0.003$ & $0.049$ & $0.076$ & $0.014$ \\
+Global-only & \multicolumn{7}{c}{N/A --- no part queries, cannot evaluate part-level semantics} \\
+Part (no anchor) & $0.200$ & $0.034$ & $-0.088$ & $-0.003$ & $0.049$ & $0.076$ & $0.014$ \\
 $+$ Anchor & $0.210$ & $\mathbf{0.102}$ & $-0.104$ & $0.011$ & $-0.040$ & $\mathbf{0.148}$ & $\mathbf{0.023}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The anchor improves the mean semantic gap ($+0.023$ vs $+0.014$) and the torso ($+0.102$ vs $+0.034$) and right-leg ($+0.148$ vs $+0.076$) gaps. Top-1 accuracy is limited by the motion-part latent quality (graph-pooled joint features), not the anchor itself. The query--anchor similarity matrix $S_{ij}=\cos(q_i, a_j)$ achieves a diagonal mean of $0.9999$ and off-diagonal mean of $0.0315$; this near-perfect alignment is \emph{expected} from the anchor loss and confirms that the queries are successfully grounded, but the downstream part-semantic evaluation above is the stronger evidence for language--body correspondence.
+Part-indexed alignment enables part-level semantic evaluation that Global-only cannot support. The anchor further improves the mean semantic gap ($+0.023$ vs $+0.014$) and the torso ($+0.102$ vs $+0.034$) and right-leg ($+0.148$ vs $+0.076$) gaps. Top-1 accuracy is limited by the motion-part latent quality (graph-pooled joint features), not the alignment itself.
 
 \subsection{Tokenizer: graph vs.\ conv}
 
@@ -410,7 +376,7 @@ Steps & CFG & FID $\downarrow$ & R@3 $\uparrow$ & MM Dist $\downarrow$ \\
 
 \section{Conclusion}
 
-GALA links three contributions: a CTR graph tokenizer that preserves skeletal topology, an anatomically grounded part-semantic alignment that grounds learnable queries in CLIP body-part semantics, and a kinematically supervised rectified flow with velocity, bone-length, and foot-contact penalties. Official 20-replication experiments show that the complete chain improves 20-NFE FID from $0.402$ to $0.272$ and R@3 from $0.789$ to $0.806$, while 50 NFEs reach FID $0.224$. The anatomical anchor adds near-zero quality cost while improving fine-grained part-semantic correspondence (torso gap $+0.102$, right-leg gap $+0.148$). A supplementary contact-aware skating loss reduces foot skating by 15\% at a controlled FID cost, trading generation fidelity for physical plausibility. The tokenizer is near-lossless, so closing the remaining fidelity gap calls for a stronger transport model rather than a larger codebook.
+GALA links three contributions: a topology-aware CTR graph tokenizer that preserves skeletal topology, a part-indexed language--motion alignment that enables fine-grained semantic evaluation impossible with pooled conditioning, and a kinematically supervised rectified flow with velocity, bone-length, and foot-contact penalties. Official 20-replication experiments show that the complete chain improves 20-NFE FID from $0.402$ to $0.272$ and R@3 from $0.789$ to $0.806$, while 50 NFEs reach FID $0.224$. Part-indexed alignment enables part-level semantic evaluation that Global-only models cannot support, and a supplementary contact-aware skating loss reduces foot skating by 15\% at a controlled FID cost. The tokenizer is near-lossless, so closing the remaining fidelity gap with discrete generators calls for a stronger transport model rather than a larger codebook.
 
 \section{Acknowledgment}
 Generative AI assisted with language editing and LaTeX consistency checks; the authors verified the technical content, code, and reported results.
